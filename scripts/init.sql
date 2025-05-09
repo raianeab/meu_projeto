@@ -1,35 +1,61 @@
--- init.sql
-
--- Criar extensão para suportar UUIDs, se ainda não estiver ativada
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- Criar tabela de usuários com UUID como chave primária
-CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(100) NOT NULL,
-  email VARCHAR(100) UNIQUE NOT NULL
+create table usuarios (
+  id uuid primary key references auth.users(id) on delete cascade,
+  nome_completo varchar(255) not null,
+  telefone varchar(20),
+  tipo_usuario varchar(20) not null check (tipo_usuario in ('organizador', 'participante', 'admin')),
+  data_cadastro timestamp with time zone default now()
 );
 
--- Inserir 20 usuários com nomes e emails aleatórios
-INSERT INTO users (name, email)
-VALUES 
-  ('Alice Smith', 'alice.smith@example.com'),
-  ('Bob Johnson', 'bob.johnson@example.com'),
-  ('Carol Williams', 'carol.williams@example.com'),
-  ('David Jones', 'david.jones@example.com'),
-  ('Emma Brown', 'emma.brown@example.com'),
-  ('Frank Davis', 'frank.davis@example.com'),
-  ('Grace Wilson', 'grace.wilson@example.com'),
-  ('Henry Moore', 'henry.moore@example.com'),
-  ('Isabella Taylor', 'isabella.taylor@example.com'),
-  ('Jack Lee', 'jack.lee@example.com'),
-  ('Kate Clark', 'kate.clark@example.com'),
-  ('Liam Martinez', 'liam.martinez@example.com'),
-  ('Mia Rodriguez', 'mia.rodriguez@example.com'),
-  ('Noah Garcia', 'noah.garcia@example.com'),
-  ('Olivia Hernandez', 'olivia.hernandez@example.com'),
-  ('Patrick Martinez', 'patrick.martinez@example.com'),
-  ('Quinn Lopez', 'quinn.lopez@example.com'),
-  ('Rose Thompson', 'rose.thompson@example.com'),
-  ('Samuel Perez', 'samuel.perez@example.com'),
-  ('Tara Scott', 'tara.scott@example.com');
+create table categorias (
+  id serial primary key,
+  nome_categoria varchar(100) not null,
+  descricao text
+);
+
+create table eventos (
+  id uuid primary key default gen_random_uuid(),
+  titulo varchar(255) not null,
+  descricao text,
+  local varchar(255),
+  data_inicio timestamp with time zone not null,
+  data_fim timestamp with time zone not null,
+  tipo_evento varchar(50) check (tipo_evento in ('palestra', 'workshop', 'conferência', 'online', 'presencial')),
+  vagas_disponiveis integer,
+  publico_alvo text,
+  status varchar(20) default 'ativo' check (status in ('ativo', 'cancelado', 'encerrado')),
+  data_criacao timestamp with time zone default now(),
+  id_organizador uuid not null references usuarios(id) on delete cascade
+);
+
+create table evento_categoria (
+  id serial primary key,
+  id_evento uuid not null references eventos(id) on delete cascade,
+  id_categoria integer not null references categorias(id) on delete cascade
+);
+
+create table inscricoes (
+  id uuid primary key default gen_random_uuid(),
+  id_evento uuid not null references eventos(id) on delete cascade,
+  id_usuario uuid not null references usuarios(id) on delete cascade,
+  data_inscricao timestamp with time zone default now(),
+  status varchar(20) default 'pendente' check (status in ('pendente', 'confirmada', 'cancelada')),
+  certificado_emitido boolean default false
+);
+
+create table certificados (
+  id serial primary key,
+  id_inscricao uuid not null unique references inscricoes(id) on delete cascade,
+  caminho_arquivo varchar(255) not null,
+  data_emissao timestamp with time zone default now()
+);
+
+create table feedbacks (
+  id serial primary key,
+  id_evento uuid not null references eventos(id) on delete cascade,
+  id_usuario uuid not null references usuarios(id) on delete cascade,
+  avaliacao integer check (avaliacao between 1 and 5),
+  comentario text,
+  data_envio timestamp with time zone default now()
+);
+
+
