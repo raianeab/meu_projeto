@@ -97,7 +97,7 @@ Tabela intermediária que implementa a relação N:N entre **evento** e **catego
 - Uma categoria pode agrupar diversos eventos.
 
 
-### [Modelo Físico](script/init.sql)
+### [Modelo Físico](../script/init.sql)
 
 
 ### 3.1.1 BD e Models (Semana 5)
