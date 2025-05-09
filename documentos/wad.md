@@ -4,7 +4,7 @@
 
 ## E-winds
 
-#### Autor do projeto :Raiane Araujo Brandão
+#### Autor do projeto: Raiane Araujo Brandão
 
 ## Sumário
 
@@ -97,7 +97,7 @@ Tabela intermediária que implementa a relação N:N entre **evento** e **catego
 - Uma categoria pode agrupar diversos eventos.
 
 
-### [Modelo Físico](../script/init.sql)
+### [Modelo Físico](../scripts/init.sql)
 
 
 ### 3.1.1 BD e Models (Semana 5)
