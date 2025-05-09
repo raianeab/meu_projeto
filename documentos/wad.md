@@ -46,53 +46,56 @@ O modelo lógico da Plataforma de Gerenciamento de Eventos a seguir foi estrutur
 
 *Figura 1: Diagrama lógico com tabelas e relacionamentos.*
 
-<p align="center">
-<a href= ""><img src="../assets/modelo_logico.png" alt="Modelo Lógico"></a>
-</p>
-Principais Entidades e Relacionamentos
-usuário (usuario):
+<div align="center">
+   <sub>Figura 1: Modelo Lógico do Banco de Dados</sub><br>
+   <img src= "..\assets\modelo_logico.png" width="100%" 
+   alt="Modelo Lógico do Banco de Dados"><br>
+   <sup>Fonte: Autoral, 2025</sup>
+ </div>
+
+### Principais Entidades e Relacionamentos
+
+**usuário (usuario)**  
 Armazena dados de organizadores, participantes e administradores.
 
-Relação 1:N com evento: um usuário pode organizar vários eventos.
+- Relação 1:N com **evento**: um usuário pode organizar vários eventos.  
+- Relação 1:N com **inscricao**: um usuário pode se inscrever em diversos eventos.  
+- Relação 1:N com **feedback_evento**: um usuário pode enviar feedback para vários eventos.
 
-Relação 1:N com inscricao: um usuário pode se inscrever em diversos eventos.
-
-Relação 1:N com feedback_evento: um usuário pode enviar feedback para vários eventos.
-
-evento:
+**evento**  
 Contém as informações dos eventos criados na plataforma por organizadores e administradores.
 
-Relação N:1 com usuario (organizador/administrador).
+- Relação N:1 com **usuario** (organizador/administrador).  
+- Relação 1:N com **inscricao**: um evento pode ter várias inscrições.  
+- Relação 1:N com **feedback_evento**: um evento pode receber múltiplos feedbacks.  
+- Relação N:N com **categoria**, através da tabela intermediária **evento_categoria**.
 
-Relação 1:N com inscricao: um evento pode ter várias inscrições.
+**inscrição (inscricao)**  
+Conecta as tabelas **usuario** e **evento**, representando a participação de um usuário em um evento.
 
-Relação 1:N com feedback_evento: um evento pode receber múltiplos feedbacks.
+- Relação N:1 com **usuario** e com **evento**.  
+- Relação 1:1 com **certificado**: cada inscrição pode gerar um único certificado.
 
-Relação N:N com categoria_evento, através da tabela intermediária evento_categoria.
-
-inscrição (inscricao):
-Conecta as tabelas usuario e evento, representando a participação de um usuário em um evento.
-
-Relação N:1 com usuario e com evento.
-
-Relação 1:1 com certificado: cada inscrição pode gerar um único certificado.
-
-certificado:
+**certificado**  
 Armazena os dados de emissão de certificados para participantes confirmados.
 
-Relação 1:1 com inscricao: garante que apenas uma certificação é emitida por inscrição.
+- Relação 1:1 com **inscricao**: garante que apenas uma certificação é emitida por inscrição.
 
-feedback_evento:
+**feedback_evento**  
 Registra a avaliação de um evento feita por um usuário.
 
-Relação N:1 com usuario e com evento.
+- Relação N:1 com **usuario** e com **evento**.
 
-categoria_evento e evento_categoria:
-Implementam a relação N:N entre eventos e categorias.
+**categoria**  
+Lista as categorias disponíveis para classificar os eventos.
 
-Um evento pode estar vinculado a várias categorias.
+- Relação N:N com **evento**, através da tabela intermediária **evento_categoria**.
 
-Uma categoria pode agrupar diversos eventos.
+**evento_categoria**  
+Tabela intermediária que implementa a relação N:N entre **evento** e **categoria**.
+
+- Um evento pode estar vinculado a várias categorias.  
+- Uma categoria pode agrupar diversos eventos.
 
 ### 3.1.1 BD e Models (Semana 5)
 *Descreva aqui os Models implementados no sistema web*
