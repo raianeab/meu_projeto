@@ -27,7 +27,7 @@ create table eventos (
   id_organizador uuid not null references usuarios(id) on delete cascade
 );
 
-create table evento_categoria (
+create table eventos_categorias (
   id serial primary key,
   id_evento uuid not null references eventos(id) on delete cascade,
   id_categoria integer not null references categorias(id) on delete cascade
@@ -49,7 +49,7 @@ create table certificados (
   data_emissao timestamp with time zone default now()
 );
 
-create table feedbacks (
+create table feedbacks_eventos (
   id serial primary key,
   id_evento uuid not null references eventos(id) on delete cascade,
   id_usuario uuid not null references usuarios(id) on delete cascade,
@@ -57,5 +57,3 @@ create table feedbacks (
   comentario text,
   data_envio timestamp with time zone default now()
 );
-
-

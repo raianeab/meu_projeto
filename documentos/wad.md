@@ -4,7 +4,7 @@
 
 ## E-winds
 
-#### Raiane Araujo Brandão
+#### Autor do projeto :Raiane Araujo Brandão
 
 ## Sumário
 
@@ -44,7 +44,6 @@ Com uma interface clara e funcionalidades pensadas para o uso real, a plataforma
 Diagrama do Modelo Lógico
 O modelo lógico da Plataforma de Gerenciamento de Eventos a seguir foi estruturado para refletir os principais fluxos de informação entre usuários, eventos e ações relacionadas (inscrição, feedback, certificação). Ele foi projetado com atenção às relações entre entidades, garantindo integridade e escalabilidade.
 
-*Figura 1: Diagrama lógico com tabelas e relacionamentos.*
 
 <div align="center">
    <sub>Figura 1: Modelo Lógico do Banco de Dados</sub><br>
@@ -96,6 +95,10 @@ Tabela intermediária que implementa a relação N:N entre **evento** e **catego
 
 - Um evento pode estar vinculado a várias categorias.  
 - Uma categoria pode agrupar diversos eventos.
+
+
+### [Modelo Físico](script/init.sql)
+
 
 ### 3.1.1 BD e Models (Semana 5)
 *Descreva aqui os Models implementados no sistema web*
