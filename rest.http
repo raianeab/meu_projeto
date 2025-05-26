@@ -1,0 +1,149 @@
+### 📄 USUÁRIOS
+
+### Listar usuários
+GET http://localhost:3000/users
+Accept: application/json
+
+### Criar novo usuário
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "nome_completo": "Testonilson",
+  "tipo_usuario": "organizador"
+}
+
+### Deletar usuário
+DELETE http://localhost:3000/users/05f7ba0d-83f2-4ba0-996f-4df1310ed6f5
+Accept: application/json
+
+### Atualizar usuário
+PUT http://localhost:3000/users/62001f04-4907-4ba2-b77a-3e6014873b1a
+Content-Type: application/json
+
+{
+  "nome_completo": "Giselle Bueno",
+  "tipo_usuario": "organizador"
+} 
+
+###
+
+### 📄 CATEGORIAS
+
+### Listar categorias
+GET http://localhost:3000/categories
+Accept: application/json
+
+###
+
+### Criar nova categoria
+POST http://localhost:3000/categories
+Content-Type: application/json
+
+{
+  "nome_categoria": "teste",
+  "descricao": "Evento voltado para tecnologia, startups e empreendedorismo."
+}
+
+###
+
+### 📄 EVENTOS
+
+### Listar eventos
+GET http://localhost:3000/events
+Accept: application/json
+
+###
+
+### Criar novo evento
+POST http://localhost:3000/events
+Content-Type: application/json
+
+{
+  "titulo": "teste da Inovação 2025",
+  "descricao": "Evento voltado para tecnologia, startups e empreendedorismo.",
+  "local": "Auditório Inteli, São Paulo",
+  "data_inicio": "2025-09-10T09:00:00Z",
+  "data_fim": "2025-09-12T17:00:00Z",
+  "tipo_evento": "palestra",
+  "vagas_disponiveis": 150,
+  "publico_alvo": "Estudantes, profissionais de tecnologia, empreendedores",
+  "id_organizador": "3a0f4c7a-1234-4e5b-9876-bd1fdfe3a5c1"
+}
+
+###
+
+### 📄 INSCRIÇÕES
+
+### Listar inscrições
+GET http://localhost:3000/inscriptions
+Accept: application/json
+
+###
+
+### Criar nova inscrição
+POST http://localhost:3000/inscriptions
+Content-Type: application/json
+
+{
+  "id_evento": "3b48ebe6-f105-478b-8ada-25ce451cfefa",
+  "id_usuario": "ceb7d56f-5389-456f-949d-f6b400460580"
+}
+
+###
+
+### 📄 CERTIFICADOS
+
+### Listar certificados
+GET http://localhost:3000/certificates
+Accept: application/json
+
+###
+
+### Criar novo certificado
+POST http://localhost:3000/certificates
+Content-Type: application/json
+
+{
+  "id_inscricao": "4bb69660-6f92-4018-b9c9-cf2469e0f968",
+  "caminho_arquivo": "https://www.google.com",
+  "data_emissao": "2025-09-10T09:00:00Z"
+}
+
+### 📄 EVENTOS CATEGORIAS
+
+### Listar eventos categorias
+GET http://localhost:3000/event-categories
+Accept: application/json
+
+###
+
+### Reunir evento com categoria
+POST http://localhost:3000/event-categories
+Content-Type: application/json
+
+{
+  "id_evento": "3b48ebe6-f105-478b-8ada-25ce451cfefa",
+  "id_categoria": "55edba24-99a7-41d3-ba15-719dc370028e"
+}
+
+###
+
+### 📄 EVENTOS FEEDBACKS
+
+### Listar eventos feedbacks
+GET http://localhost:3000/event-feedbacks
+Accept: application/json  
+
+###
+
+### Criar novo feedback de evento
+POST http://localhost:3000/event-feedbacks
+Content-Type: application/json
+
+{
+  "id_evento": "3b48ebe6-f105-478b-8ada-25ce451cfefa",
+  "id_usuario": "ceb7d56f-5389-456f-949d-f6b400460580",
+  "avaliacao": 5,
+  "comentario": "Muito bom!"
+}

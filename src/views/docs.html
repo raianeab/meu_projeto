@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Documentação da API</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      max-width: 800px;
+      margin: 2rem auto;
+      line-height: 1.6
+    }
+
+    code {
+      background: #f4f4f4;
+      padding: 2px 4px;
+      border-radius: 3px
+    }
+
+    h2 {
+      margin-top: 2.2rem
+    }
+  </style>
+</head>
+
+<body>
+  <h1>API de Gerenciamento de Eventos</h1>
+
+  <p>Esta aplicação expõe endpoints REST para gerenciamento de usuários, eventos, categorias, inscrições e certificados. Todos
+    aceitam e devolvem JSON.</p>
+
+  <h2>1. Usuários</h2>
+  <ul>
+    <li><strong>GET /users</strong> – lista todos os usuários.</li>
+    <li><strong>POST /users</strong> – cria usuário.<br>
+      Exemplo de corpo: <code>{"nome_completo":"Ana Silva","tipo_usuario":"participante"}</code></li>
+    <li><strong>GET /users/:id</strong> – detalhe do usuário.</li>
+    <li><strong>PUT /users/:id</strong> – atualiza usuário.<br>
+      Exemplo de corpo: <code>{"nome_completo":"Ana Silva","tipo_usuario":"organizador"}</code></li>
+    <li><strong>DELETE /users/:id</strong> – remove usuário.</li>
+  </ul>
+
+  <h2>2. Categorias</h2>
+  <ul>
+    <li><strong>GET /categories</strong> – lista todas as categorias.</li>
+    <li><strong>POST /categories</strong> – cria categoria.<br>
+      Exemplo de corpo: <code>{"nome_categoria":"Workshop","descricao":"Eventos práticos"}</code></li>
+  </ul>
+
+  <h2>3. Eventos</h2>
+  <ul>
+    <li><strong>GET /events</strong> – lista todos os eventos.</li>
+    <li><strong>POST /events</strong> – cria evento.<br>
+      Exemplo de corpo: <code>{
+        "titulo": "Workshop de Programação",
+        "descricao": "Aprenda programação do zero",
+        "local": "Auditório Principal",
+        "data_inicio": "2024-06-01T09:00:00Z",
+        "data_fim": "2024-06-01T18:00:00Z",
+        "tipo_evento": "workshop",
+        "vagas_disponiveis": 30,
+        "publico_alvo": "Iniciantes em programação",
+        "id_organizador": "uuid-do-organizador"
+      }</code></li>
+  </ul>
+
+  <h2>4. Inscrições</h2>
+  <ul>
+    <li><strong>GET /inscriptions</strong> – lista todas as inscrições.</li>
+    <li><strong>POST /inscriptions</strong> – cria inscrição.<br>
+      Exemplo de corpo: <code>{
+        "id_evento": "uuid-do-evento",
+        "id_usuario": "uuid-do-usuario"
+      }</code></li>
+  </ul>
+
+  <h2>5. Certificados</h2>
+  <ul>
+    <li><strong>GET /certificates</strong> – lista todos os certificados.</li>
+    <li><strong>POST /certificates</strong> – cria certificado.<br>
+      Exemplo de corpo: <code>{
+        "id_inscricao": "uuid-da-inscricao",
+        "caminho_arquivo": "/certificados/certificado.pdf",
+        "data_emissao": "2024-06-01T18:00:00Z"
+      }</code></li>
+  </ul>
+
+  <h2>6. Categorias de Eventos</h2>
+  <ul>
+    <li><strong>GET /event-categories</strong> – lista todas as categorias de eventos.</li>
+    <li><strong>POST /event-categories</strong> – associa categoria a evento.<br>
+      Exemplo de corpo: <code>{
+        "id_evento": "uuid-do-evento",
+        "id_categoria": "id-da-categoria"
+      }</code></li>
+  </ul>
+
+  <h2>7. Feedbacks de Eventos</h2>
+  <ul>
+    <li><strong>GET /event-feedbacks</strong> – lista todos os feedbacks.</li>
+    <li><strong>POST /event-feedbacks</strong> – cria feedback.<br>
+      Exemplo de corpo: <code>{
+        "id_evento": "uuid-do-evento",
+        "id_usuario": "uuid-do-usuario",
+        "avaliacao": 5,
+        "comentario": "Excelente evento!"
+      }</code></li>
+  </ul>
+
+  <h2>Exemplos de uso via <em>curl</em></h2>
+  <pre>
+# Criar um usuário
+curl -X POST http://localhost:3000/users \
+     -H "Content-Type: application/json" \
+     -d '{"nome_completo":"Ana Silva","tipo_usuario":"participante"}'
+
+# Criar uma categoria
+curl -X POST http://localhost:3000/categories \
+     -H "Content-Type: application/json" \
+     -d '{"nome_categoria":"Workshop","descricao":"Eventos práticos"}'
+
+# Criar um evento
+curl -X POST http://localhost:3000/events \
+     -H "Content-Type: application/json" \
+     -d '{
+       "titulo": "Workshop de Programação",
+       "descricao": "Aprenda programação do zero",
+       "local": "Auditório Principal",
+       "data_inicio": "2024-06-01T09:00:00Z",
+       "data_fim": "2024-06-01T18:00:00Z",
+       "tipo_evento": "workshop",
+       "vagas_disponiveis": 30,
+       "publico_alvo": "Iniciantes em programação",
+       "id_organizador": "uuid-do-organizador"
+     }'
+  </pre>
+</body>
+
+</html>
