@@ -14,11 +14,11 @@ Content-Type: application/json
 }
 
 ### Deletar usuário
-DELETE http://localhost:3000/users/05f7ba0d-83f2-4ba0-996f-4df1310ed6f5
+DELETE http://localhost:3000/users/0711c398-5d58-4328-a2e4-9b92fa56e1af
 Accept: application/json
 
 ### Atualizar usuário
-PUT http://localhost:3000/users/62001f04-4907-4ba2-b77a-3e6014873b1a
+PUT http://localhost:3000/users/369cde56-c81d-41e9-8655-d73910b4a94a
 Content-Type: application/json
 
 {

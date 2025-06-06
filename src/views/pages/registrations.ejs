@@ -1,0 +1,272 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Inscrições</h1>
+        <button class="btn btn-primary" onclick="openCreateModal()">
+            <i class="fas fa-plus"></i> Nova Inscrição
+        </button>
+    </div>
+
+    <% if (locals.error) { %>
+        <div class="alert alert-danger" role="alert">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Evento</th>
+                            <th>Participante</th>
+                            <th>Data de Inscrição</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (registrations && registrations.length > 0) { %>
+                            <% registrations.forEach(registration => { %>
+                                <tr data-registration-id="<%= registration.id %>">
+                                    <td><%= registration.id %></td>
+                                    <td><%= registration.evento_nome %></td>
+                                    <td><%= registration.participante_nome %></td>
+                                    <td><%= new Date(registration.data_inscricao).toLocaleDateString() %></td>
+                                    <td>
+                                        <span class="badge bg-<%= registration.status === 'confirmada' ? 'success' : 
+                                                              registration.status === 'pendente' ? 'warning' : 
+                                                              registration.status === 'cancelada' ? 'danger' : 'secondary' %>">
+                                            <%= registration.status %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info me-2" onclick="editRegistration('<%= registration.id %>')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteRegistration('<%= registration.id %>')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center">Nenhuma inscrição encontrada</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Adicionar/Editar Inscrição -->
+<div class="modal fade" id="registrationModal" tabindex="-1" aria-labelledby="registrationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registrationModalLabel">Nova Inscrição</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="registrationForm">
+                    <input type="hidden" id="registrationId">
+                    <div class="mb-3">
+                        <label for="evento_id" class="form-label">Evento</label>
+                        <select class="form-select" id="evento_id" name="evento_id" required>
+                            <option value="">Selecione um evento</option>
+                            <% if (eventos) { %>
+                                <% eventos.forEach(evento => { %>
+                                    <option value="<%= evento.id %>" data-vagas="<%= evento.vagas_disponiveis %>">
+                                        <%= evento.titulo %> (Vagas: <%= evento.vagas_disponiveis %>)
+                                    </option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="participante_id" class="form-label">Participante</label>
+                        <select class="form-select" id="participante_id" name="participante_id" required>
+                            <option value="">Selecione um participante</option>
+                            <% if (participantes) { %>
+                                <% participantes.forEach(participante => { %>
+                                    <option value="<%= participante.id %>"><%= participante.nome_completo %></option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="pendente">Pendente</option>
+                            <option value="confirmada">Confirmada</option>
+                            <option value="cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveRegistration()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Função para abrir o modal de edição
+async function editRegistration(registrationId) {
+    try {
+        const response = await fetch(`/registrations/${registrationId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const registration = await response.json();
+            
+            // Preenche o formulário com os dados da inscrição
+            document.getElementById('registrationId').value = registration.id;
+            document.getElementById('evento_id').value = registration.evento_id;
+            document.getElementById('participante_id').value = registration.participante_id;
+            document.getElementById('status').value = registration.status;
+            
+            // Atualiza o título do modal
+            document.getElementById('registrationModalLabel').textContent = 'Editar Inscrição';
+            
+            // Abre o modal
+            const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
+            modal.show();
+        } else {
+            const error = await response.json();
+            throw new Error(error.error || 'Erro ao buscar inscrição');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao buscar inscrição: ' + error.message);
+    }
+}
+
+// Função para abrir o modal de criação
+function openCreateModal() {
+    // Limpa o formulário
+    document.getElementById('registrationForm').reset();
+    document.getElementById('registrationId').value = '';
+    
+    // Atualiza o título do modal
+    document.getElementById('registrationModalLabel').textContent = 'Nova Inscrição';
+    
+    // Abre o modal
+    const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
+    modal.show();
+}
+
+// Função para salvar inscrição (criar ou atualizar)
+async function saveRegistration() {
+    const form = document.getElementById('registrationForm');
+    const registrationId = document.getElementById('registrationId').value;
+    const formData = new FormData(form);
+    const registrationData = Object.fromEntries(formData);
+
+    try {
+        const url = registrationId ? `/registrations/${registrationId}` : '/registrations';
+        const method = registrationId ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(registrationData)
+        });
+
+        if (response.ok) {
+            // Fecha o modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('registrationModal'));
+            modal.hide();
+            
+            // Mostra mensagem de sucesso
+            alert(registrationId ? 'Inscrição atualizada com sucesso!' : 'Inscrição criada com sucesso!');
+            
+            // Recarrega a página para atualizar a lista
+            window.location.reload();
+        } else {
+            const error = await response.json();
+            throw new Error(error.error || 'Erro ao salvar inscrição');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao salvar inscrição: ' + error.message);
+    }
+}
+
+async function deleteRegistration(registrationId) {
+    if (confirm('Tem certeza que deseja excluir esta inscrição?')) {
+        try {
+            const response = await fetch(`/registrations/${registrationId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Remove a linha da tabela
+                const row = document.querySelector(`tr[data-registration-id="${registrationId}"]`);
+                if (row) {
+                    row.remove();
+                }
+                // Mostra mensagem de sucesso
+                alert('Inscrição excluída com sucesso!');
+                // Recarrega a página para atualizar a lista
+                window.location.reload();
+            } else {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao excluir inscrição');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao excluir inscrição: ' + error.message);
+        }
+    }
+}
+
+async function viewCertificate(registrationId) {
+    try {
+        const response = await fetch(`/registrations/${registrationId}/certificate`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/pdf'
+            }
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `certificado-inscricao-${registrationId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        } else {
+            const error = await response.json();
+            throw new Error(error.error || 'Erro ao baixar certificado');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao baixar certificado: ' + error.message);
+    }
+}
+</script>
+
+<%- include('../partials/footer') %> 

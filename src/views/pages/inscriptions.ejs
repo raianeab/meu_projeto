@@ -1,0 +1,221 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Inscrições</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+        <li class="breadcrumb-item active">Inscrições</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-clipboard-list me-1"></i>
+                Lista de Inscrições
+            </div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inscriptionModal">
+                <i class="fas fa-plus"></i> Nova Inscrição
+            </button>
+        </div>
+        <div class="card-body">
+            <% if (error) { %>
+                <div class="alert alert-danger" role="alert">
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="inscriptionsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Evento</th>
+                            <th>Participante</th>
+                            <th>Status</th>
+                            <th>Data de Inscrição</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (inscriptions && inscriptions.length > 0) { %>
+                            <% inscriptions.forEach(function(inscription) { %>
+                                <tr>
+                                    <td><%= inscription.evento_nome %></td>
+                                    <td><%= inscription.usuario_nome %></td>
+                                    <td>
+                                        <span class="badge <%= inscription.status === 'confirmada' ? 'bg-success' : 
+                                                             inscription.status === 'pendente' ? 'bg-warning' : 
+                                                             'bg-danger' %>">
+                                            <%= inscription.status %>
+                                        </span>
+                                    </td>
+                                    <td><%= new Date(inscription.data_inscricao).toLocaleDateString('pt-BR') %></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info edit-inscription" data-id="<%= inscription.id %>">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" class="text-center">Nenhuma inscrição encontrada</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Inscrição -->
+<div class="modal fade" id="inscriptionModal" tabindex="-1" aria-labelledby="inscriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inscriptionModalLabel">Nova Inscrição</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="inscriptionForm">
+                    <input type="hidden" id="inscriptionId">
+                    <div class="mb-3">
+                        <label for="id_evento" class="form-label">Evento</label>
+                        <select class="form-select" id="id_evento" name="id_evento" required>
+                            <option value="">Selecione um evento</option>
+                            <% if (eventos && eventos.length > 0) { %>
+                                <% eventos.forEach(function(evento) { %>
+                                    <option value="<%= evento.id %>" data-id="<%= evento.id %>"><%= evento.titulo %></option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_usuario" class="form-label">Participante</label>
+                        <select class="form-select" id="id_usuario" name="id_usuario" required>
+                            <option value="">Selecione um participante</option>
+                            <% if (usuarios && usuarios.length > 0) { %>
+                                <% usuarios.forEach(function(usuario) { %>
+                                    <option value="<%= usuario.id %>" data-id="<%= usuario.id %>"><%= usuario.nome_completo %></option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="pendente">Pendente</option>
+                            <option value="confirmada">Confirmada</option>
+                            <option value="cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveInscription">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = new bootstrap.Modal(document.getElementById('inscriptionModal'));
+    const form = document.getElementById('inscriptionForm');
+    const saveButton = document.getElementById('saveInscription');
+    let isEditing = false;
+
+    // Função para limpar o formulário
+    function clearForm() {
+        form.reset();
+        document.getElementById('inscriptionId').value = '';
+        document.getElementById('inscriptionModalLabel').textContent = 'Nova Inscrição';
+        isEditing = false;
+    }
+
+    // Função para editar inscrição
+    document.querySelectorAll('.edit-inscription').forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            try {
+                const response = await fetch(`/api/inscriptions/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const inscription = await response.json();
+                    
+                    // Preenche o formulário com os dados da inscrição
+                    document.getElementById('inscriptionId').value = inscription.id;
+                    document.getElementById('id_evento').value = inscription.id_evento;
+                    document.getElementById('id_usuario').value = inscription.id_usuario;
+                    document.getElementById('status').value = inscription.status;
+                    
+                    // Atualiza o título do modal
+                    document.getElementById('inscriptionModalLabel').textContent = 'Editar Inscrição';
+                    isEditing = true;
+                    
+                    // Abre o modal
+                    modal.show();
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erro ao buscar inscrição');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showError('Erro ao buscar inscrição: ' + error.message);
+            }
+        });
+    });
+
+    // Função para salvar inscrição
+    saveButton.addEventListener('click', async function() {
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const id = document.getElementById('inscriptionId').value;
+
+        try {
+            const url = isEditing ? `/api/inscriptions/${id}` : '/api/inscriptions';
+            const method = isEditing ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                showSuccess(isEditing ? 'Inscrição atualizada com sucesso!' : 'Inscrição criada com sucesso!');
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                const errorData = await response.json();
+                showError(errorData.error || 'Erro ao salvar inscrição');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            showError('Erro ao salvar inscrição');
+        }
+    });
+
+    // Limpar formulário quando o modal for fechado
+    document.getElementById('inscriptionModal').addEventListener('hidden.bs.modal', clearForm);
+
+    // Inicializa o DataTable
+    $('#inscriptionsTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+        },
+        order: [[3, 'desc']], // Ordena por data de inscrição decrescente
+        pageLength: 10,
+        responsive: true
+    });
+});
+</script>
+
+<%- include('../partials/footer') %> 

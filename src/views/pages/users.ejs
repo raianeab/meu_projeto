@@ -1,0 +1,212 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Usuários</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+        <li class="breadcrumb-item active">Usuários</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-users me-1"></i>
+                Lista de Usuários
+            </div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal">
+                <i class="fas fa-plus"></i> Novo Usuário
+            </button>
+        </div>
+        <div class="card-body">
+            <% if (error) { %>
+                <div class="alert alert-danger" role="alert">
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="usersTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Tipo</th>
+                            <th>Data de Cadastro</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (users && users.length > 0) { %>
+                            <% users.forEach(function(user) { %>
+                                <tr>
+                                    <td><%= user.nome_completo %></td>
+                                    <td><%= user.email %></td>
+                                    <td>
+                                        <span class="badge <%= user.tipo_usuario === 'admin' ? 'bg-danger' : 
+                                                             user.tipo_usuario === 'organizador' ? 'bg-primary' : 
+                                                             'bg-success' %>">
+                                            <%= user.tipo_usuario %>
+                                        </span>
+                                    </td>
+                                    <td><%= new Date(user.data_cadastro).toLocaleDateString('pt-BR') %></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info edit-user" data-id="<%= user.id %>">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" class="text-center">Nenhum usuário encontrado</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Usuário -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalLabel">Novo Usuário</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userId">
+                    <div class="mb-3">
+                        <label for="nome_completo" class="form-label">Nome Completo</label>
+                        <input type="text" class="form-control" id="nome_completo" name="nome_completo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefone" class="form-label">Telefone</label>
+                        <input type="tel" class="form-control" id="telefone" name="telefone">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tipo_usuario" class="form-label">Tipo de Usuário</label>
+                        <select class="form-select" id="tipo_usuario" name="tipo_usuario" required>
+                            <option value="participante">Participante</option>
+                            <option value="organizador">Organizador</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveUser">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = new bootstrap.Modal(document.getElementById('userModal'));
+    const form = document.getElementById('userForm');
+    const saveButton = document.getElementById('saveUser');
+    let isEditing = false;
+
+    // Função para limpar o formulário
+    function clearForm() {
+        form.reset();
+        document.getElementById('userId').value = '';
+        document.getElementById('userModalLabel').textContent = 'Novo Usuário';
+        isEditing = false;
+    }
+
+    // Função para editar usuário
+    document.querySelectorAll('.edit-user').forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            try {
+                const response = await fetch(`/api/users/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    
+                    // Preenche o formulário com os dados do usuário
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('nome_completo').value = user.nome_completo;
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('telefone').value = user.telefone || '';
+                    document.getElementById('tipo_usuario').value = user.tipo_usuario;
+                    
+                    // Atualiza o título do modal
+                    document.getElementById('userModalLabel').textContent = 'Editar Usuário';
+                    isEditing = true;
+                    
+                    // Abre o modal
+                    modal.show();
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erro ao buscar usuário');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showError('Erro ao buscar usuário: ' + error.message);
+            }
+        });
+    });
+
+    // Função para salvar usuário
+    saveButton.addEventListener('click', async function() {
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const id = document.getElementById('userId').value;
+
+        try {
+            const url = isEditing ? `/api/users/${id}` : '/api/users';
+            const method = isEditing ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                showSuccess(isEditing ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!');
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                const errorData = await response.json();
+                showError(errorData.error || 'Erro ao salvar usuário');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            showError('Erro ao salvar usuário');
+        }
+    });
+
+    // Limpar formulário quando o modal for fechado
+    document.getElementById('userModal').addEventListener('hidden.bs.modal', clearForm);
+
+    // Inicializa o DataTable
+    $('#usersTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+        },
+        order: [[3, 'desc']], // Ordena por data de cadastro decrescente
+        pageLength: 10,
+        responsive: true
+    });
+});
+</script>
+
+<%- include('../partials/footer') %> 

@@ -185,8 +185,71 @@ A documentação é interativa e pode ser visualizada em qualquer navegador web.
 
 ### 3.7 Interface e Navegação (Semana 07)
 
-*Descreva e ilustre aqui o desenvolvimento do frontend do sistema web, explicando brevemente o que foi entregue em termos de código e sistema. Utilize prints de tela para ilustrar.*
+O desenvolvimento do frontend do sistema foi realizado utilizando EJS (Embedded JavaScript) como template engine, Bootstrap 5 para o design responsivo e JavaScript para a interatividade. A estrutura do frontend foi organizada da seguinte forma:
 
+#### 3.7.1 Estrutura de Arquivos
+
+```
+src/
+├── views/
+│   ├── pages/
+│   │   ├── events.ejs
+│   │   ├── users.ejs
+│   │   ├── inscriptions.ejs
+│   │   └── categories.ejs
+│   └── partials/
+│       ├── header.ejs
+│       └── footer.ejs
+```
+
+#### 3.7.2 Componentes Principais
+
+1. **Header (Navegação)**
+   - Menu de navegação responsivo com links para todas as seções do sistema
+   - Ícones intuitivos para melhor experiência do usuário
+   - Design moderno e limpo
+   ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1749223684/tela1_kxxdcw.png)
+<sup> Fonte: Autoral, 2025</sup> </div> <br>
+
+
+2. **Página de Eventos**
+   - Lista de eventos em formato de cards
+   - Filtros por categoria e status
+   - Formulário modal para criação/edição de eventos
+   - Visualização detalhada de cada evento
+   
+   ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1749223694/tela2_rl4pqe.png)
+<sup> Fonte: Autoral, 2025</sup> </div> <br>
+
+
+
+3. **Página de Usuários**
+   - Tabela responsiva com lista de usuários
+   - Filtros e busca
+   - Formulário para adicionar/editar usuários
+   - Gerenciamento de perfis
+         ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1749223703/tela3_rqt3gn.png)
+<sup> Fonte: Autoral, 2025</sup> </div> <br>
+
+
+4. **Página de Inscrições**
+   - Lista de inscrições com status visual
+   - Formulário para criar novas inscrições
+   - Edição rápida de status
+   - Integração com eventos e usuários
+         ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1749223713/tela4_bylrxm.png)
+<sup> Fonte: Autoral, 2025</sup> </div> <br>
+
+
+#### 3.7.3 Tecnologias Utilizadas
+
+- **Bootstrap 5**: Framework CSS para design responsivo
+- **Font Awesome**: Ícones modernos e intuitivos
+- **DataTables**: Plugin para tabelas interativas
+- **JavaScript**: Interatividade e manipulação do DOM
+- **EJS**: Template engine para renderização dinâmica
+
+O frontend do sistema foi desenvolvido com foco em usabilidade, performance e manutenibilidade, utilizando as melhores práticas de desenvolvimento web moderno. 
 ---
 
 ## <a name="c4"></a>4. Desenvolvimento da Aplicação Web (Semana 8)

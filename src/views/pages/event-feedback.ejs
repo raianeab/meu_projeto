@@ -1,0 +1,309 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Feedbacks de Eventos</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+        <li class="breadcrumb-item active">Feedbacks</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-table me-1"></i>
+                Lista de Feedbacks
+            </div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                <i class="fas fa-plus"></i> Novo Feedback
+            </button>
+        </div>
+        <div class="card-body">
+            <% if (error) { %>
+                <div class="alert alert-danger" role="alert">
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="feedbacksTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Evento</th>
+                            <th>Participante</th>
+                            <th>Data</th>
+                            <th>Avaliação</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (feedbacks && feedbacks.length > 0) { %>
+                            <% feedbacks.forEach(function(feedback) { %>
+                                <tr>
+                                    <td><%= feedback.evento_nome %></td>
+                                    <td><%= feedback.participante_nome %></td>
+                                    <td><%= new Date(feedback.data_feedback).toLocaleDateString('pt-BR') %></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <% for(let i = 1; i <= 5; i++) { %>
+                                                <i class="fas fa-star <%= i <= feedback.avaliacao ? 'text-warning' : 'text-muted' %>"></i>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info me-2 view-feedback" 
+                                                data-id="<%= feedback.id %>">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger delete-feedback" 
+                                                data-id="<%= feedback.id %>">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" class="text-center">Nenhum feedback encontrado</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Feedback -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">Novo Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="feedbackForm">
+                    <input type="hidden" id="feedbackId">
+                    <div class="mb-3">
+                        <label for="id_evento" class="form-label">Evento</label>
+                        <select class="form-select" id="id_evento" name="id_evento" required>
+                            <option value="">Selecione um evento</option>
+                            <% eventos.forEach(function(evento) { %>
+                                <option value="<%= evento.id %>"><%= evento.titulo %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_usuario" class="form-label">Participante</label>
+                        <select class="form-select" id="id_usuario" name="id_usuario" required>
+                            <option value="">Selecione um participante</option>
+                            <% participantes.forEach(function(participante) { %>
+                                <option value="<%= participante.id %>"><%= participante.nome_completo %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Avaliação</label>
+                        <div class="rating">
+                            <% for(let i = 5; i >= 1; i--) { %>
+                                <input type="radio" name="avaliacao" value="<%= i %>" id="star<%= i %>" required>
+                                <label for="star<%= i %>"><i class="fas fa-star"></i></label>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comentario" class="form-label">Comentário</label>
+                        <textarea class="form-control" id="comentario" name="comentario" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveFeedback">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Visualizar Feedback -->
+<div class="modal fade" id="viewFeedbackModal" tabindex="-1" aria-labelledby="viewFeedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewFeedbackModalLabel">Detalhes do Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h6>Evento</h6>
+                    <p id="viewEventoNome"></p>
+                </div>
+                <div class="mb-3">
+                    <h6>Participante</h6>
+                    <p id="viewParticipanteNome"></p>
+                </div>
+                <div class="mb-3">
+                    <h6>Data</h6>
+                    <p id="viewData"></p>
+                </div>
+                <div class="mb-3">
+                    <h6>Avaliação</h6>
+                    <div id="viewAvaliacao" class="d-flex align-items-center"></div>
+                </div>
+                <div class="mb-3">
+                    <h6>Comentário</h6>
+                    <p id="viewComentario"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating input {
+    display: none;
+}
+
+.rating label {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ddd;
+    padding: 0 0.1em;
+}
+
+.rating input:checked ~ label,
+.rating label:hover,
+.rating label:hover ~ label {
+    color: #ffd700;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+    const form = document.getElementById('feedbackForm');
+    const saveButton = document.getElementById('saveFeedback');
+    let isEditing = false;
+
+    // Função para limpar o formulário
+    function clearForm() {
+        form.reset();
+        document.getElementById('feedbackId').value = '';
+        document.getElementById('feedbackModalLabel').textContent = 'Novo Feedback';
+        isEditing = false;
+    }
+
+    // Função para visualizar feedback
+    document.querySelectorAll('.view-feedback').forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            try {
+                const response = await fetch(`/event-feedbacks/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const feedback = await response.json();
+                    
+                    // Preenche os campos do modal de visualização
+                    document.getElementById('viewEventoNome').textContent = feedback.evento_nome;
+                    document.getElementById('viewParticipanteNome').textContent = feedback.participante_nome;
+                    document.getElementById('viewData').textContent = new Date(feedback.data_feedback).toLocaleDateString('pt-BR');
+                    
+                    // Cria as estrelas de avaliação
+                    const avaliacaoDiv = document.getElementById('viewAvaliacao');
+                    avaliacaoDiv.innerHTML = '';
+                    for (let i = 1; i <= 5; i++) {
+                        const star = document.createElement('i');
+                        star.className = `fas fa-star ${i <= feedback.avaliacao ? 'text-warning' : 'text-muted'}`;
+                        avaliacaoDiv.appendChild(star);
+                    }
+                    
+                    document.getElementById('viewComentario').textContent = feedback.comentario;
+                    
+                    // Abre o modal
+                    const viewModal = new bootstrap.Modal(document.getElementById('viewFeedbackModal'));
+                    viewModal.show();
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erro ao buscar feedback');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao buscar feedback: ' + error.message);
+            }
+        });
+    });
+
+    // Função para deletar feedback
+    document.querySelectorAll('.delete-feedback').forEach(button => {
+        button.addEventListener('click', async function() {
+            if (confirm('Tem certeza que deseja excluir este feedback?')) {
+                const id = this.dataset.id;
+                try {
+                    const response = await fetch(`/event-feedbacks/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        const data = await response.json();
+                        alert(data.error || 'Erro ao excluir feedback');
+                    }
+                } catch (error) {
+                    console.error('Erro:', error);
+                    alert('Erro ao excluir feedback');
+                }
+            }
+        });
+    });
+
+    // Função para salvar feedback
+    saveButton.addEventListener('click', async function() {
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const id = document.getElementById('feedbackId').value;
+
+        try {
+            const url = isEditing ? `/event-feedbacks/${id}` : '/event-feedbacks';
+            const method = isEditing ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                const errorData = await response.json();
+                alert(errorData.error || 'Erro ao salvar feedback');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao salvar feedback');
+        }
+    });
+
+    // Limpar formulário quando o modal for fechado
+    document.getElementById('feedbackModal').addEventListener('hidden.bs.modal', clearForm);
+});
+</script>
+
+<%- include('../partials/footer') %> 
