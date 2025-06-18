@@ -10,6 +10,8 @@ Content-Type: application/json
 
 {
   "nome_completo": "Testonilson",
+  "email": "teste@exemplo.com",
+  "senha": "123456",
   "tipo_usuario": "organizador"
 }
 
@@ -23,6 +25,8 @@ Content-Type: application/json
 
 {
   "nome_completo": "Giselle Bueno",
+  "email": "giselle@exemplo.com",
+  "senha": "123456",
   "tipo_usuario": "organizador"
 } 
 

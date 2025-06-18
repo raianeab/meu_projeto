@@ -177,6 +177,15 @@ const eventsController = {
 
       if (eventCategoriesError) throw eventCategoriesError;
 
+      // Busca organizadores (usuários com tipo 'organizador' ou 'admin')
+      const { data: organizadores, error: organizadoresError } = await supabase
+        .from('usuarios')
+        .select('id, nome_completo, email')
+        .in('tipo_usuario', ['organizador', 'admin'])
+        .order('nome_completo', { ascending: true });
+
+      if (organizadoresError) throw organizadoresError;
+
       const formattedEvents = events.map(event => {
         const eventCategory = eventCategories?.find(ec => ec.id_evento === event.id);
         const category = categories?.find(c => c.id === eventCategory?.id_categoria);
@@ -191,13 +200,15 @@ const eventsController = {
           categoria_nome: category?.nome_categoria || 'Sem categoria',
           vagas_disponiveis: event.vagas_disponiveis,
           publico_alvo: event.publico_alvo,
-          status: event.status || 'ativo'
+          status: event.status || 'ativo',
+          id_organizador: event.id_organizador
         };
       });
 
       return res.render('pages/events', {
         events: formattedEvents || [],
         categorias: categories || [],
+        organizadores: organizadores || [],
         error: null
       });
 
@@ -206,6 +217,7 @@ const eventsController = {
       return res.render('pages/events', {
         events: [],
         categorias: [],
+        organizadores: [],
         error: 'Erro ao carregar eventos. Por favor, tente novamente mais tarde.'
       });
     }

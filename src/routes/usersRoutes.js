@@ -7,10 +7,10 @@ const usersController = require('../controllers/usersController');
 router.get('/', usersController.list);
 
 // Rotas da API
-router.post('/api', usersController.create);
-router.get('/api', usersController.findAll);
-router.get('/api/:id', usersController.findById);
-router.put('/api/:id', usersController.update);
-router.delete('/api/:id', usersController.delete);
+router.get('/', usersController.findAll);
+router.get('/:id', usersController.findById);
+router.post('/', usersController.create);
+router.put('/:id', usersController.update);
+router.delete('/:id', usersController.delete);
 
 module.exports = router;

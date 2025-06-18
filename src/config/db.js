@@ -28,4 +28,3 @@ supabase.from('eventos').select('count').limit(1)
     });
 
 module.exports = supabase;
-

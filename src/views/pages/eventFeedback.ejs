@@ -1,0 +1,234 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Feedback de Eventos</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Formulário de Feedback -->
+                    <form id="feedbackForm" class="mb-4">
+                        <div class="mb-3">
+                            <label for="eventId" class="form-label">Evento</label>
+                            <select class="form-select" id="eventId" name="eventId" required>
+                                <option value="">Selecione um evento</option>
+                                <% events.forEach(event => { %>
+                                    <option value="<%= event.id %>"><%= event.titulo %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Avaliação</label>
+                            <select class="form-select" id="rating" name="rating" required>
+                                <option value="">Selecione uma avaliação</option>
+                                <option value="1">1 - Muito Ruim</option>
+                                <option value="2">2 - Ruim</option>
+                                <option value="3">3 - Regular</option>
+                                <option value="4">4 - Bom</option>
+                                <option value="5">5 - Excelente</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Comentário</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Enviar Feedback</button>
+                    </form>
+
+                    <!-- Lista de Feedbacks -->
+                    <h5>Feedbacks Recentes</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="feedbacksTable">
+                            <thead>
+                                <tr>
+                                    <th>Evento</th>
+                                    <th>Avaliação</th>
+                                    <th>Comentário</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% feedbacks.forEach(feedback => { %>
+                                    <tr>
+                                        <td><%= feedback.evento_titulo %></td>
+                                        <td>
+                                            <% for(let i = 0; i < feedback.avaliacao; i++) { %>
+                                                <i class="fas fa-star text-warning"></i>
+                                            <% } %>
+                                        </td>
+                                        <td><%= feedback.comentario %></td>
+                                        <td><%= new Date(feedback.created_at).toLocaleDateString() %></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info edit-feedback" data-id="<%= feedback.id %>">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger delete-feedback" data-id="<%= feedback.id %>">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Edição de Feedback -->
+<div class="modal fade" id="feedbackEditModal" tabindex="-1" aria-labelledby="feedbackEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackEditModalLabel">Editar Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="feedbackEditForm">
+                    <input type="hidden" id="editFeedbackId">
+                    <div class="mb-3">
+                        <label for="editEventId" class="form-label">Evento</label>
+                        <select class="form-select" id="editEventId" name="id_evento" required>
+                            <option value="">Selecione um evento</option>
+                            <% events.forEach(event => { %>
+                                <option value="<%= event.id %>"><%= event.titulo %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editRating" class="form-label">Avaliação</label>
+                        <select class="form-select" id="editRating" name="avaliacao" required>
+                            <option value="">Selecione uma avaliação</option>
+                            <option value="1">1 - Muito Ruim</option>
+                            <option value="2">2 - Ruim</option>
+                            <option value="3">3 - Regular</option>
+                            <option value="4">4 - Bom</option>
+                            <option value="5">5 - Excelente</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editComment" class="form-label">Comentário</label>
+                        <textarea class="form-control" id="editComment" name="comentario" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveFeedbackEdit">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script>
+document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = {
+        id_evento: document.getElementById('eventId').value,
+        id_usuario: '<%= user.id %>',
+        avaliacao: parseInt(document.getElementById('rating').value),
+        comentario: document.getElementById('comment').value
+    };
+
+    try {
+        const response = await fetch('/api/event-feedbacks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            alert('Feedback enviado com sucesso!');
+            window.location.reload();
+        } else {
+            const errorData = await response.json();
+            alert(`Erro ao enviar feedback: ${errorData.error || 'Erro desconhecido'}`);
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao enviar feedback');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Editar feedback
+    const editModal = new bootstrap.Modal(document.getElementById('feedbackEditModal'));
+    const editForm = document.getElementById('feedbackEditForm');
+    let editingFeedbackId = null;
+    document.querySelectorAll('.edit-feedback').forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            try {
+                const response = await fetch(`/api/event-feedbacks/${id}`);
+                if (!response.ok) throw new Error('Erro ao buscar feedback');
+                const feedback = await response.json();
+                document.getElementById('editFeedbackId').value = feedback.id;
+                document.getElementById('editEventId').value = feedback.id_evento;
+                document.getElementById('editRating').value = feedback.avaliacao;
+                document.getElementById('editComment').value = feedback.comentario;
+                editingFeedbackId = feedback.id;
+                editModal.show();
+            } catch (error) {
+                alert('Erro ao buscar feedback: ' + error.message);
+            }
+        });
+    });
+    document.getElementById('saveFeedbackEdit').addEventListener('click', async function() {
+        const id = document.getElementById('editFeedbackId').value;
+        const data = {
+            id_evento: document.getElementById('editEventId').value,
+            id_usuario: '<%= user.id %>',
+            avaliacao: parseInt(document.getElementById('editRating').value),
+            comentario: document.getElementById('editComment').value
+        };
+        try {
+            const response = await fetch(`/api/event-feedbacks/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao atualizar feedback');
+            }
+            alert('Feedback atualizado com sucesso!');
+            editModal.hide();
+            setTimeout(() => window.location.reload(), 1000);
+        } catch (error) {
+            alert('Erro ao atualizar feedback: ' + error.message);
+        }
+    });
+    // Deletar feedback
+    document.querySelectorAll('.delete-feedback').forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            if (confirm('Tem certeza que deseja deletar este feedback?')) {
+                try {
+                    const response = await fetch(`/api/event-feedbacks/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Erro ao deletar feedback');
+                    }
+                    alert('Feedback deletado com sucesso!');
+                    window.location.reload();
+                } catch (error) {
+                    alert('Erro ao deletar feedback: ' + error.message);
+                }
+            }
+        });
+    });
+});
+</script>
+
+<%- include('../partials/footer') %> 

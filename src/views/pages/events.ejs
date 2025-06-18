@@ -8,9 +8,14 @@
     </ol>
 
     <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            Lista de Eventos
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-calendar me-1"></i>
+                Lista de Eventos
+            </div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventModal">
+                <i class="fas fa-plus"></i> Novo Evento
+            </button>
         </div>
         <div class="card-body">
             <% if (error) { %>
@@ -32,6 +37,7 @@
                             <th>Vagas</th>
                             <th>Público Alvo</th>
                             <th>Status</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,11 +59,14 @@
                                             <%= event.status %>
                                         </span>
                                     </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info edit-event" data-id="<%= event.id %>"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-danger delete-event" data-id="<%= event.id %>"><i class="fas fa-trash"></i></button>
+                                    </td>
                                 </tr>
                             <% }); %>
                         <% } else { %>
                             <tr>
-                                <td colspan="9" class="text-center">Nenhum evento encontrado</td>
+                                <td colspan="10" class="text-center">Nenhum evento encontrado</td>
                             </tr>
                         <% } %>
                     </tbody>
@@ -67,14 +76,204 @@
     </div>
 </div>
 
+<!-- Modal de Evento -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventModalLabel">Novo Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="eventForm">
+                    <input type="hidden" id="eventId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="titulo" class="form-label">Título</label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="tipo_evento" class="form-label">Tipo de Evento</label>
+                                <select class="form-select" id="tipo_evento" name="tipo_evento" required>
+                                    <option value="">Selecione o tipo</option>
+                                    <option value="palestra">Palestra</option>
+                                    <option value="workshop">Workshop</option>
+                                    <option value="conferencia">Conferência</option>
+                                    <option value="seminario">Seminário</option>
+                                    <option value="curso">Curso</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="3" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="data_inicio" class="form-label">Data de Início</label>
+                                <input type="datetime-local" class="form-control" id="data_inicio" name="data_inicio" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="data_fim" class="form-label">Data de Fim</label>
+                                <input type="datetime-local" class="form-control" id="data_fim" name="data_fim" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="local" class="form-label">Local</label>
+                                <input type="text" class="form-control" id="local" name="local" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="vagas_disponiveis" class="form-label">Vagas Disponíveis</label>
+                                <input type="number" class="form-control" id="vagas_disponiveis" name="vagas_disponiveis" min="1" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="publico_alvo" class="form-label">Público Alvo</label>
+                        <input type="text" class="form-control" id="publico_alvo" name="publico_alvo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_organizador" class="form-label">Organizador</label>
+                        <select class="form-select" id="id_organizador" name="id_organizador" required>
+                            <option value="">Selecione um organizador</option>
+                            <% if (typeof organizadores !== 'undefined' && organizadores.length > 0) { %>
+                                <% organizadores.forEach(org => { %>
+                                    <option value="<%= org.id %>"><%= org.nome_completo %> (<%= org.email %>)</option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                        <div class="form-text">Selecione o usuário que será o organizador do evento</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveEvent">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+    const form = document.getElementById('eventForm');
+    const saveButton = document.getElementById('saveEvent');
+    let isEditing = false;
+
+    // Função para limpar o formulário
+    function clearForm() {
+        form.reset();
+        document.getElementById('eventId').value = '';
+        document.getElementById('eventModalLabel').textContent = 'Novo Evento';
+        isEditing = false;
+    }
+
+    // Função para editar evento
+    document.querySelectorAll('.edit-event').forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            try {
+                const response = await fetch(`/api/events/${id}`);
+                if (!response.ok) throw new Error('Erro ao buscar evento');
+                const event = await response.json();
+                // Converte as datas para o formato datetime-local
+                const dataInicio = new Date(event.data_inicio).toISOString().slice(0, 16);
+                const dataFim = new Date(event.data_fim).toISOString().slice(0, 16);
+                document.getElementById('eventId').value = event.id;
+                document.getElementById('titulo').value = event.titulo;
+                document.getElementById('descricao').value = event.descricao;
+                document.getElementById('local').value = event.local;
+                document.getElementById('data_inicio').value = dataInicio;
+                document.getElementById('data_fim').value = dataFim;
+                document.getElementById('tipo_evento').value = event.tipo_evento;
+                document.getElementById('vagas_disponiveis').value = event.vagas_disponiveis;
+                document.getElementById('publico_alvo').value = event.publico_alvo;
+                document.getElementById('id_organizador').value = event.id_organizador;
+                document.getElementById('eventModalLabel').textContent = 'Editar Evento';
+                isEditing = true;
+                modal.show();
+            } catch (error) {
+                alert('Erro ao buscar evento: ' + error.message);
+            }
+        });
+    });
+
+    // Função para deletar evento
+    document.querySelectorAll('.delete-event').forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            if (confirm('Tem certeza que deseja deletar este evento?')) {
+                try {
+                    const response = await fetch(`/api/events/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Erro ao deletar evento');
+                    }
+                    alert('Evento deletado com sucesso!');
+                    window.location.reload();
+                } catch (error) {
+                    alert('Erro ao deletar evento: ' + error.message);
+                }
+            }
+        });
+    });
+
+    // Função para salvar evento
+    saveButton.addEventListener('click', async function() {
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const id = document.getElementById('eventId').value;
+        // Converte as datas para ISO string
+        if (data.data_inicio) {
+            data.data_inicio = new Date(data.data_inicio).toISOString();
+        }
+        if (data.data_fim) {
+            data.data_fim = new Date(data.data_fim).toISOString();
+        }
+        // Converte vagas para número
+        data.vagas_disponiveis = parseInt(data.vagas_disponiveis);
+        try {
+            const url = isEditing ? `/api/events/${id}` : '/api/events';
+            const method = isEditing ? 'PUT' : 'POST';
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao salvar evento');
+            }
+            alert(isEditing ? 'Evento atualizado com sucesso!' : 'Evento criado com sucesso!');
+            modal.hide();
+            setTimeout(() => window.location.reload(), 1000);
+        } catch (error) {
+            alert('Erro ao salvar evento: ' + error.message);
+        }
+    });
+
+    // Limpar formulário quando o modal for fechado
+    document.getElementById('eventModal').addEventListener('hidden.bs.modal', clearForm);
+
     // Inicializa o DataTable
     $('#eventsTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
-        },
-        order: [[1, 'desc']], // Ordena por data de início decrescente
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' },
+        order: [[1, 'desc']],
         pageLength: 10,
         responsive: true
     });

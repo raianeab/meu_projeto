@@ -53,6 +53,9 @@
                                         <button class="btn btn-sm btn-info edit-user" data-id="<%= user.id %>">
                                             <i class="fas fa-edit"></i>
                                         </button>
+                                        <button class="btn btn-sm btn-danger delete-user" data-id="<%= user.id %>">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             <% }); %>
@@ -88,6 +91,15 @@
                         <input type="email" class="form-control" id="email" name="email" required>
                     </div>
                     <div class="mb-3">
+                        <label for="senha" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="senha" name="senha" minlength="6">
+                        <div class="form-text">Mínimo de 6 caracteres. Deixe em branco para manter a senha atual ao editar.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmar_senha" class="form-label">Confirmar Senha</label>
+                        <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" minlength="6">
+                    </div>
+                    <div class="mb-3">
                         <label for="telefone" class="form-label">Telefone</label>
                         <input type="tel" class="form-control" id="telefone" name="telefone">
                     </div>
@@ -114,14 +126,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = new bootstrap.Modal(document.getElementById('userModal'));
     const form = document.getElementById('userForm');
     const saveButton = document.getElementById('saveUser');
-    let isEditing = false;
 
     // Função para limpar o formulário
     function clearForm() {
         form.reset();
         document.getElementById('userId').value = '';
         document.getElementById('userModalLabel').textContent = 'Novo Usuário';
-        isEditing = false;
     }
 
     // Função para editar usuário
@@ -129,36 +139,21 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', async function() {
             const id = this.dataset.id;
             try {
-                const response = await fetch(`/api/users/${id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
+                const response = await fetch(`/api/users/${id}`);
+                if (!response.ok) throw new Error('Erro ao buscar usuário');
+                
                     const user = await response.json();
-                    
-                    // Preenche o formulário com os dados do usuário
                     document.getElementById('userId').value = user.id;
                     document.getElementById('nome_completo').value = user.nome_completo;
                     document.getElementById('email').value = user.email || '';
                     document.getElementById('telefone').value = user.telefone || '';
                     document.getElementById('tipo_usuario').value = user.tipo_usuario;
-                    
-                    // Atualiza o título do modal
+                    document.getElementById('senha').value = '';
+                    document.getElementById('confirmar_senha').value = '';
                     document.getElementById('userModalLabel').textContent = 'Editar Usuário';
-                    isEditing = true;
-                    
-                    // Abre o modal
                     modal.show();
-                } else {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Erro ao buscar usuário');
-                }
             } catch (error) {
-                console.error('Erro:', error);
-                showError('Erro ao buscar usuário: ' + error.message);
+                alert('Erro ao buscar usuário: ' + error.message);
             }
         });
     });
@@ -169,28 +164,33 @@ document.addEventListener('DOMContentLoaded', function() {
         const data = Object.fromEntries(formData.entries());
         const id = document.getElementById('userId').value;
 
-        try {
-            const url = isEditing ? `/api/users/${id}` : '/api/users';
-            const method = isEditing ? 'PUT' : 'POST';
+        if (data.senha && data.senha !== data.confirmar_senha) {
+            alert('As senhas não coincidem!');
+            return;
+        }
 
+        delete data.confirmar_senha;
+        if (id && !data.senha) delete data.senha;
+
+        try {
+            const url = id ? `/api/users/${id}` : '/api/users';
+            const method = id ? 'PUT' : 'POST';
             const response = await fetch(url, {
                 method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
 
-            if (response.ok) {
-                showSuccess(isEditing ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!');
-                setTimeout(() => window.location.reload(), 1500);
-            } else {
-                const errorData = await response.json();
-                showError(errorData.error || 'Erro ao salvar usuário');
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao salvar usuário');
             }
+
+            alert(id ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!');
+                modal.hide();
+                window.location.reload();
         } catch (error) {
-            console.error('Erro:', error);
-            showError('Erro ao salvar usuário');
+            alert('Erro ao salvar usuário: ' + error.message);
         }
     });
 
@@ -199,12 +199,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Inicializa o DataTable
     $('#usersTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
-        },
-        order: [[3, 'desc']], // Ordena por data de cadastro decrescente
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' },
+        order: [[3, 'desc']],
         pageLength: 10,
         responsive: true
+    });
+
+    // Adicionar ao final do script:
+    document.querySelectorAll('.delete-user').forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            if (confirm('Tem certeza que deseja deletar este usuário?')) {
+                try {
+                    const response = await fetch(`/api/users/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Erro ao deletar usuário');
+                    }
+                    alert('Usuário deletado com sucesso!');
+                    window.location.reload();
+                } catch (error) {
+                    alert('Erro ao deletar usuário: ' + error.message);
+                }
+            }
+        });
     });
 });
 </script>

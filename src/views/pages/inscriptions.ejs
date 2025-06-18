@@ -14,7 +14,7 @@
                 Lista de Inscrições
             </div>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inscriptionModal">
-                <i class="fas fa-plus"></i> Nova Inscrição
+                <i class="fas fa-plus"></i> certo Nova Inscrição
             </button>
         </div>
         <div class="card-body">
@@ -50,15 +50,13 @@
                                     </td>
                                     <td><%= new Date(inscription.data_inscricao).toLocaleDateString('pt-BR') %></td>
                                     <td>
-                                        <button class="btn btn-sm btn-info edit-inscription" data-id="<%= inscription.id %>">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
+                                        <button class="btn btn-sm btn-info edit-inscription" data-id="<%= inscription.id %>"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-danger delete-inscription" data-id="<%= inscription.id %>"><i class="fas fa-trash"></i></button>
                                     </td>
                                 </tr>
                             <% }); %>
                         <% } else { %>
                             <tr>
-                                <td colspan="5" class="text-center">Nenhuma inscrição encontrada</td>
+                                <td colspan="6" class="text-center">Nenhuma inscrição encontrada</td>
                             </tr>
                         <% } %>
                     </tbody>
@@ -214,6 +212,27 @@ document.addEventListener('DOMContentLoaded', function() {
         order: [[3, 'desc']], // Ordena por data de inscrição decrescente
         pageLength: 10,
         responsive: true
+    });
+
+    document.querySelectorAll('.delete-inscription').forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            if (confirm('Tem certeza que deseja deletar esta inscrição?')) {
+                try {
+                    const response = await fetch(`/api/inscriptions/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Erro ao deletar inscrição');
+                    }
+                    alert('Inscrição deletada com sucesso!');
+                    window.location.reload();
+                } catch (error) {
+                    alert('Erro ao deletar inscrição: ' + error.message);
+                }
+            }
+        });
     });
 });
 </script>

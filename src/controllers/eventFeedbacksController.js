@@ -243,6 +243,55 @@ const eventFeedbacksController = {
         error: 'Erro ao carregar feedbacks. Por favor, tente novamente mais tarde.'
       });
     }
+  },
+
+  async renderFeedbackPage(req, res) {
+    try {
+      // Busca todos os eventos
+      const { data: events, error: eventosError } = await supabase
+        .from('eventos')
+        .select('*');
+
+      if (eventosError) throw eventosError;
+
+      // Busca todos os feedbacks com informações do evento
+      const { data: feedbacks, error: feedbacksError } = await supabase
+        .from('eventos_feedbacks')
+        .select('*')
+        .order('data_envio', { ascending: false });
+
+      if (feedbacksError) throw feedbacksError;
+
+      // Busca todos os usuários
+      const { data: usuarios, error: usuariosError } = await supabase
+        .from('usuarios')
+        .select('*');
+      if (usuariosError) throw usuariosError;
+
+      // Formata os dados para a view
+      const formattedFeedbacks = feedbacks.map(feedback => {
+        const evento = events.find(e => e.id === feedback.id_evento);
+        const usuario = usuarios.find(u => u.id === feedback.id_usuario);
+        return {
+          ...feedback,
+          evento_titulo: evento ? evento.titulo : 'Evento não encontrado',
+          participante_nome: usuario ? usuario.nome_completo : 'Participante não encontrado',
+          created_at: feedback.data_envio
+        };
+      });
+
+      res.render('pages/eventFeedback', {
+        events: events || [],
+        feedbacks: formattedFeedbacks || [],
+        user: req.session.user || null
+      });
+    } catch (error) {
+      console.error('Erro ao renderizar página de feedbacks:', error);
+      res.status(500).render('pages/error', {
+        message: 'Erro ao carregar página de feedbacks',
+        error: error
+      });
+    }
   }
 };
 

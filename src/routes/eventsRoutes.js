@@ -7,10 +7,10 @@ const eventsController = require('../controllers/eventsController');
 router.get('/', eventsController.list);
 
 // Rotas da API
-router.post('/api', eventsController.create);
-router.get('/api', eventsController.findAll);
-router.get('/api/:id', eventsController.findById);
-router.put('/api/:id', eventsController.update);
-router.delete('/api/:id', eventsController.delete);
+router.post('/', eventsController.create);
+router.get('/', eventsController.findAll);
+router.get('/:id', eventsController.findById);
+router.put('/:id', eventsController.update);
+router.delete('/:id', eventsController.delete);
 
 module.exports = router;

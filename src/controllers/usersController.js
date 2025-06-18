@@ -1,5 +1,6 @@
 const supabase = require('../config/db');
 const Users = require('../models/usersModel');
+const bcrypt = require('bcrypt');
 
 const usersController = {
     async create(req, res) {
@@ -9,13 +10,30 @@ const usersController = {
                 return res.status(400).json({ error: error.details[0].message });
             }
 
-            const { nome_completo, tipo_usuario } = value;
+            const { nome_completo, email, telefone, tipo_usuario, senha } = value;
+
+            // Verifica se o email já está em uso
+            const { data: existingUser } = await supabase
+                .from('usuarios')
+                .select('email')
+                .eq('email', email)
+                .single();
+
+            if (existingUser) {
+                return res.status(400).json({ error: 'Este email já está em uso' });
+            }
+
+            // Criptografa a senha
+            const hashedPassword = await bcrypt.hash(senha, 10);
+
             const { data, error: supabaseError } = await supabase
                 .from('usuarios')
                 .insert([{
                     nome_completo,
+                    email,
+                    telefone,
                     tipo_usuario,
-                    data_criacao: new Date().toISOString()
+                    senha: hashedPassword
                 }])
                 .select();
 
@@ -56,7 +74,9 @@ const usersController = {
                 return res.status(404).json({ error: 'Usuário não encontrado' });
             }
             
-            res.json(data);
+            // Remove a senha do objeto antes de enviar
+            const { senha, ...userWithoutPassword } = data;
+            res.json(userWithoutPassword);
         } catch (error) {
             console.error('Erro ao buscar usuário:', error);
             res.status(500).json({ error: 'Erro interno do servidor' });
@@ -71,11 +91,38 @@ const usersController = {
             }
 
             const { id } = req.params;
-            const { nome_completo, tipo_usuario } = value;
+            const { nome_completo, email, telefone, tipo_usuario, senha } = value;
+
+            // Verifica se o email já está em uso por outro usuário
+            if (email) {
+                const { data: existingUser } = await supabase
+                    .from('usuarios')
+                    .select('email')
+                    .eq('email', email)
+                    .neq('id', id)
+                    .single();
+
+                if (existingUser) {
+                    return res.status(400).json({ error: 'Este email já está em uso' });
+                }
+            }
+            
+            // Prepara o objeto de atualização
+            const updateData = {
+                nome_completo,
+                email,
+                telefone,
+                tipo_usuario
+            };
+
+            // Se uma nova senha foi fornecida, criptografa e adiciona ao objeto
+            if (senha) {
+                updateData.senha = await bcrypt.hash(senha, 10);
+            }
             
             const { data, error: supabaseError } = await supabase
                 .from('usuarios')
-                .update({ nome_completo, tipo_usuario })
+                .update(updateData)
                 .eq('id', id)
                 .select()
                 .single();
@@ -85,7 +132,9 @@ const usersController = {
                 return res.status(404).json({ error: 'Usuário não encontrado' });
             }
             
-            res.json(data);
+            // Remove a senha do objeto antes de enviar
+            const { senha: _, ...userWithoutPassword } = data;
+            res.json(userWithoutPassword);
         } catch (error) {
             console.error('Erro ao atualizar usuário:', error);
             res.status(500).json({ error: 'Erro interno do servidor' });
@@ -123,7 +172,7 @@ const usersController = {
                 throw new Error('Cliente Supabase não inicializado');
             }
 
-             // Busca todos os usuários
+            // Busca todos os usuários
             const { data: users, error } = await supabase
                 .from('usuarios')
                 .select('*')
@@ -143,7 +192,7 @@ const usersController = {
                 email: user.email || '',
                 telefone: user.telefone || '',
                 tipo_usuario: user.tipo_usuario,
-                data_cadastro: user.data_cadastro
+                data_cadastro: user.created_at
             }));
 
             // Renderiza a página com os dados

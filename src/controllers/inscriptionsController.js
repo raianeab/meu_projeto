@@ -9,13 +9,13 @@ const inscriptionsController = {
         return res.status(400).json({ error: error.details[0].message });
       }
 
-      const { id_evento, id_usuario } = value;
+      const { id_evento, id_usuario, status } = value;
       const { data, error: supabaseError } = await supabase
         .from('inscricoes')
         .insert([{
           id_evento,
           id_usuario,
-          status: 'pendente',
+          status: status || 'pendente',
           certificado_emitido: false,
           data_inscricao: new Date().toISOString()
         }])
