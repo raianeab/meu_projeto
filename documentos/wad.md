@@ -264,7 +264,8 @@ O frontend do sistema foi desenvolvido com foco em usabilidade, performance e ma
 
 ### 4.1 Demonstração do Sistema Web (Semana 8)
 
-*VIDEO: https://youtu.be/BllS5E6PK6U*
+*VIDEO DO FRONTEND: https://youtu.be/BllS5E6PK6U*
+*VIDEO DO BACKEND: https://youtu.be/TydPTQXlSmo*
 
 Desenvolvi um sistema web completo de gerenciamento de eventos utilizando Node.js, Express, EJS como template engine, PostgreSQL via Supabase como banco de dados, e Bootstrap para a interface. Segue abaixo a atual estrutura do projeto
 
