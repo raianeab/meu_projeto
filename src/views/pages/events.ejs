@@ -44,19 +44,19 @@
                         <% if (events && events.length > 0) { %>
                             <% events.forEach(function(event) { %>
                                 <tr>
-                                    <td><%= event.titulo %></td>
-                                    <td><%= new Date(event.data_inicio).toLocaleString('pt-BR') %></td>
-                                    <td><%= new Date(event.data_fim).toLocaleString('pt-BR') %></td>
-                                    <td><%= event.local %></td>
-                                    <td><%= event.tipo_evento %></td>
-                                    <td><%= event.categoria_nome %></td>
-                                    <td><%= event.vagas_disponiveis %></td>
-                                    <td><%= event.publico_alvo %></td>
+                                    <td><%= event.titulo || '' %></td>
+                                    <td><%= event.data_inicio ? new Date(event.data_inicio).toLocaleString('pt-BR') : '' %></td>
+                                    <td><%= event.data_fim ? new Date(event.data_fim).toLocaleString('pt-BR') : '' %></td>
+                                    <td><%= event.local || '' %></td>
+                                    <td><%= event.tipo_evento || '' %></td>
+                                    <td><%= event.categoria_nome || 'Sem categoria' %></td>
+                                    <td><%= event.vagas_disponiveis || 0 %></td>
+                                    <td><%= event.publico_alvo || '' %></td>
                                     <td>
                                         <span class="badge <%= event.status === 'ativo' ? 'bg-success' : 
                                                              event.status === 'cancelado' ? 'bg-danger' : 
                                                              'bg-warning' %>">
-                                            <%= event.status %>
+                                            <%= event.status || 'ativo' %>
                                         </span>
                                     </td>
                                     <td>
@@ -76,7 +76,6 @@
     </div>
 </div>
 
-<!-- Modal de Evento -->
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -101,9 +100,9 @@
                                     <option value="">Selecione o tipo</option>
                                     <option value="palestra">Palestra</option>
                                     <option value="workshop">Workshop</option>
-                                    <option value="conferencia">Conferência</option>
-                                    <option value="seminario">Seminário</option>
-                                    <option value="curso">Curso</option>
+                                    <option value="conferência">Conferência</option>
+                                    <option value="online">Online</option>
+                                    <option value="presencial">Presencial</option>
                                 </select>
                             </div>
                         </div>
@@ -156,6 +155,17 @@
                         </select>
                         <div class="form-text">Selecione o usuário que será o organizador do evento</div>
                     </div>
+                    <div class="mb-3">
+                        <label for="id_categoria" class="form-label">Categoria</label>
+                        <select class="form-select" id="id_categoria" name="id_categoria" required>
+                            <option value="">Selecione a categoria</option>
+                            <% if (typeof categorias !== 'undefined' && categorias.length > 0) { %>
+                                <% categorias.forEach(cat => { %>
+                                    <option value="<%= cat.id %>"><%= cat.nome_categoria %></option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -173,7 +183,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveButton = document.getElementById('saveEvent');
     let isEditing = false;
 
-    // Função para limpar o formulário
     function clearForm() {
         form.reset();
         document.getElementById('eventId').value = '';
@@ -181,7 +190,6 @@ document.addEventListener('DOMContentLoaded', function() {
         isEditing = false;
     }
 
-    // Função para editar evento
     document.querySelectorAll('.edit-event').forEach(button => {
         button.addEventListener('click', async function() {
             const id = this.dataset.id;
@@ -189,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const response = await fetch(`/api/events/${id}`);
                 if (!response.ok) throw new Error('Erro ao buscar evento');
                 const event = await response.json();
-                // Converte as datas para o formato datetime-local
+                
                 const dataInicio = new Date(event.data_inicio).toISOString().slice(0, 16);
                 const dataFim = new Date(event.data_fim).toISOString().slice(0, 16);
                 document.getElementById('eventId').value = event.id;
@@ -202,6 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('vagas_disponiveis').value = event.vagas_disponiveis;
                 document.getElementById('publico_alvo').value = event.publico_alvo;
                 document.getElementById('id_organizador').value = event.id_organizador;
+                document.getElementById('id_categoria').value = event.id_categoria;
                 document.getElementById('eventModalLabel').textContent = 'Editar Evento';
                 isEditing = true;
                 modal.show();
@@ -211,7 +220,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Função para deletar evento
     document.querySelectorAll('.delete-event').forEach(button => {
         button.addEventListener('click', async function() {
             const id = this.dataset.id;
@@ -233,20 +241,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Função para salvar evento
     saveButton.addEventListener('click', async function() {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         const id = document.getElementById('eventId').value;
-        // Converte as datas para ISO string
+        
         if (data.data_inicio) {
             data.data_inicio = new Date(data.data_inicio).toISOString();
         }
         if (data.data_fim) {
             data.data_fim = new Date(data.data_fim).toISOString();
         }
-        // Converte vagas para número
+        
         data.vagas_disponiveis = parseInt(data.vagas_disponiveis);
+        
         try {
             const url = isEditing ? `/api/events/${id}` : '/api/events';
             const method = isEditing ? 'PUT' : 'POST';
@@ -267,16 +275,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Limpar formulário quando o modal for fechado
     document.getElementById('eventModal').addEventListener('hidden.bs.modal', clearForm);
 
-    // Inicializa o DataTable
-    $('#eventsTable').DataTable({
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' },
-        order: [[1, 'desc']],
-        pageLength: 10,
-        responsive: true
-    });
+    try {
+        if ($('#eventsTable').length) {
+            $('#eventsTable').DataTable({
+                language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' },
+                pageLength: 10,
+                destroy: true
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao inicializar DataTable:', error);
+    }
 });
 </script>
 

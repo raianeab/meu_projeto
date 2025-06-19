@@ -1,82 +1,12 @@
 <%- include('../partials/header') %>
 
-<div class="container mt-4">
-    <!-- Mensagem de Erro -->
-    <% if (typeof error !== 'undefined' && error) { %>
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <%= error %>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="mb-4">Bem-vindo à Plataforma de Eventos!</h1>
+            <p class="lead">Gerencie eventos, inscrições, certificados e muito mais de forma simples e eficiente.</p>
         </div>
-    <% } %>
-
-    <!-- Seção de Boas-vindas -->
-    <% if (user) { %>
-        <h1 class="mb-4">Bem-vindo, <%= user.nome_completo %>!</h1>
-    <% } else { %>
-        <h1 class="mb-4">Bem-vindo ao Sistema de Eventos!</h1>
-    <% } %>
-
-    <!-- Eventos em Destaque -->
-    <section class="mb-5">
-        <h2 class="mb-4">Eventos em Destaque</h2>
-        <div class="row">
-            <% if (eventos && eventos.length > 0) { %>
-                <% eventos.forEach(evento => { %>
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title"><%= evento.titulo %></h5>
-                                <p class="card-text"><%= evento.descricao ? evento.descricao.substring(0, 100) + '...' : 'Sem descrição' %></p>
-                                <ul class="list-unstyled">
-                                    <li><strong>Data:</strong> <%= evento.data_inicio ? new Date(evento.data_inicio).toLocaleDateString() : 'Não definida' %></li>
-                                    <li><strong>Local:</strong> <%= evento.local || 'Não definido' %></li>
-                                    <li><strong>Organizador:</strong> <%= evento.nome_organizador || 'Não definido' %></li>
-                                </ul>
-                                <a href="/eventos/<%= evento.id %>" class="btn btn-primary">Ver Detalhes</a>
-                            </div>
-                        </div>
-                    </div>
-                <% }); %>
-            <% } else { %>
-                <div class="col-12">
-                    <p class="text-muted">Nenhum evento em destaque no momento.</p>
-                </div>
-            <% } %>
-        </div>
-    </section>
-
-    <!-- Eventos por Categoria -->
-    <section class="mb-5">
-        <h2 class="mb-4">Eventos por Categoria</h2>
-        <% if (categorias && categorias.length > 0) { %>
-            <% categorias.forEach(categoria => { %>
-                <div class="mb-4">
-                    <h3 class="h4 mb-3"><%= categoria.nome_categoria %></h3>
-                    <div class="row">
-                        <% if (eventosPorCategoria[categoria.id] && eventosPorCategoria[categoria.id].length > 0) { %>
-                            <% eventosPorCategoria[categoria.id].forEach(evento => { %>
-                                <div class="col-md-4 mb-3">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><%= evento.titulo %></h5>
-                                            <p class="card-text"><%= evento.descricao ? evento.descricao.substring(0, 100) + '...' : 'Sem descrição' %></p>
-                                            <a href="/eventos/<%= evento.id %>" class="btn btn-outline-primary">Ver Detalhes</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% }); %>
-                        <% } else { %>
-                            <div class="col-12">
-                                <p class="text-muted">Nenhum evento nesta categoria no momento.</p>
-                            </div>
-                        <% } %>
-                    </div>
-                </div>
-            <% }); %>
-        <% } else { %>
-            <p class="text-muted">Nenhuma categoria disponível no momento.</p>
-        <% } %>
-    </section>
+    </div>
 </div>
 
 <%- include('../partials/footer') %>

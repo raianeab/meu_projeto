@@ -66,7 +66,7 @@ const runSQLCommandsIndividually = async () => {
   }
   
   console.log(`
-    IMPORTANTE: 
+    INSTRUÇÕES: 
     Para executar comandos DDL (CREATE TABLE, etc.) no Supabase, você precisa:
     
     1. Acessar o painel do Supabase (https://app.supabase.com)

@@ -119,7 +119,6 @@ const eventFeedbacksController = {
     try {
       console.log('Iniciando busca de feedbacks...');
       
-      // Verifica se o Supabase está configurado
       if (!supabase) {
         console.error('Erro: Cliente Supabase não inicializado');
         throw new Error('Cliente Supabase não inicializado');
@@ -127,7 +126,6 @@ const eventFeedbacksController = {
 
       console.log('Cliente Supabase inicializado, testando conexão com a tabela eventos_feedbacks...');
 
-      // Testa a conexão com a tabela
       const { data: testData, error: testError } = await supabase
         .from('eventos_feedbacks')
         .select('count')
@@ -145,7 +143,6 @@ const eventFeedbacksController = {
 
       console.log('Conexão com a tabela eventos_feedbacks OK, buscando dados...');
 
-      // Busca todos os feedbacks
       const { data: feedbacks, error: feedbacksError } = await supabase
         .from('eventos_feedbacks')
         .select('*')
@@ -163,7 +160,6 @@ const eventFeedbacksController = {
 
       console.log('Feedbacks encontrados:', feedbacks?.length || 0);
 
-      // Busca todos os eventos
       console.log('Buscando eventos...');
       const { data: eventos, error: eventosError } = await supabase
         .from('eventos')
@@ -181,7 +177,6 @@ const eventFeedbacksController = {
 
       console.log('Eventos encontrados:', eventos?.length || 0);
 
-      // Busca todos os usuários
       console.log('Buscando usuários...');
       const { data: usuarios, error: usuariosError } = await supabase
         .from('usuarios')
@@ -199,9 +194,7 @@ const eventFeedbacksController = {
 
       console.log('Usuários encontrados:', usuarios?.length || 0);
 
-      // Formata os dados para a view
       const formattedFeedbacks = feedbacks?.map(feedback => {
-        // Encontra o evento e usuário relacionados
         const evento = eventos?.find(e => e.id === feedback.id_evento);
         const usuario = usuarios?.find(u => u.id === feedback.id_usuario);
 
@@ -219,7 +212,6 @@ const eventFeedbacksController = {
 
       console.log('Feedbacks formatados:', formattedFeedbacks.length);
 
-      // Renderiza a página com os dados
       return res.render('pages/event-feedback', {
         feedbacks: formattedFeedbacks,
         eventos: eventos || [],
@@ -235,7 +227,6 @@ const eventFeedbacksController = {
         code: error.code,
         stack: error.stack
       });
-      // Renderiza a página com erro
       return res.render('pages/event-feedback', {
         feedbacks: [],
         eventos: [],
@@ -247,14 +238,12 @@ const eventFeedbacksController = {
 
   async renderFeedbackPage(req, res) {
     try {
-      // Busca todos os eventos
       const { data: events, error: eventosError } = await supabase
         .from('eventos')
         .select('*');
 
       if (eventosError) throw eventosError;
 
-      // Busca todos os feedbacks com informações do evento
       const { data: feedbacks, error: feedbacksError } = await supabase
         .from('eventos_feedbacks')
         .select('*')
@@ -262,13 +251,11 @@ const eventFeedbacksController = {
 
       if (feedbacksError) throw feedbacksError;
 
-      // Busca todos os usuários
       const { data: usuarios, error: usuariosError } = await supabase
         .from('usuarios')
         .select('*');
       if (usuariosError) throw usuariosError;
 
-      // Formata os dados para a view
       const formattedFeedbacks = feedbacks.map(feedback => {
         const evento = events.find(e => e.id === feedback.id_evento);
         const usuario = usuarios.find(u => u.id === feedback.id_usuario);

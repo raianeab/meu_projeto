@@ -119,12 +119,10 @@ const certificatesController = {
         try {
             console.log('Iniciando busca de certificados...');
             
-            // Verifica se o Supabase está configurado
             if (!supabase) {
                 throw new Error('Cliente Supabase não inicializado');
             }
 
-            // Busca certificados
             const { data: certificates, error } = await supabase
                 .from('certificados')
                 .select('*')
@@ -137,7 +135,6 @@ const certificatesController = {
 
             console.log(`Certificados encontrados: ${certificates?.length || 0}`);
 
-            // Busca inscrições
             const { data: inscricoes, error: inscricoesError } = await supabase
                 .from('inscricoes')
                 .select('*');
@@ -146,7 +143,6 @@ const certificatesController = {
                 console.error('Erro ao buscar inscrições:', inscricoesError);
             }
 
-            // Busca eventos
             const { data: eventos, error: eventosError } = await supabase
                 .from('eventos')
                 .select('*');
@@ -155,7 +151,6 @@ const certificatesController = {
                 console.error('Erro ao buscar eventos:', eventosError);
             }
 
-            // Busca usuários
             const { data: usuarios, error: usuariosError } = await supabase
                 .from('usuarios')
                 .select('*');
@@ -164,12 +159,9 @@ const certificatesController = {
                 console.error('Erro ao buscar usuários:', usuariosError);
             }
 
-            // Formata os dados para a view
             const formattedCertificates = certificates?.map(cert => {
-                // Encontra a inscrição relacionada
                 const inscricao = inscricoes?.find(i => i.id === cert.id_inscricao);
                 
-                // Encontra o evento e usuário relacionados
                 const evento = eventos?.find(e => e.id === inscricao?.id_evento);
                 const usuario = usuarios?.find(u => u.id === inscricao?.id_usuario);
 
@@ -183,7 +175,6 @@ const certificatesController = {
                 };
             }) || [];
 
-            // Busca eventos e participantes para os selects do modal
             const { data: eventosSelect } = await supabase
                 .from('eventos')
                 .select('id, titulo')
@@ -194,7 +185,6 @@ const certificatesController = {
                 .select('id, nome_completo')
                 .order('nome_completo');
 
-            // Renderiza a página com os dados
             return res.render('pages/certificates', {
                 certificates: formattedCertificates,
                 eventos: eventosSelect || [],
@@ -204,7 +194,6 @@ const certificatesController = {
 
         } catch (error) {
             console.error('Erro detalhado ao listar certificados:', error);
-            // Renderiza a página com erro
             return res.render('pages/certificates', {
                 certificates: [],
                 eventos: [],

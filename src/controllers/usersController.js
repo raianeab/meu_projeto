@@ -12,7 +12,6 @@ const usersController = {
 
             const { nome_completo, email, telefone, tipo_usuario, senha } = value;
 
-            // Verifica se o email já está em uso
             const { data: existingUser } = await supabase
                 .from('usuarios')
                 .select('email')
@@ -23,7 +22,6 @@ const usersController = {
                 return res.status(400).json({ error: 'Este email já está em uso' });
             }
 
-            // Criptografa a senha
             const hashedPassword = await bcrypt.hash(senha, 10);
 
             const { data, error: supabaseError } = await supabase
@@ -74,7 +72,6 @@ const usersController = {
                 return res.status(404).json({ error: 'Usuário não encontrado' });
             }
             
-            // Remove a senha do objeto antes de enviar
             const { senha, ...userWithoutPassword } = data;
             res.json(userWithoutPassword);
         } catch (error) {
@@ -93,7 +90,6 @@ const usersController = {
             const { id } = req.params;
             const { nome_completo, email, telefone, tipo_usuario, senha } = value;
 
-            // Verifica se o email já está em uso por outro usuário
             if (email) {
                 const { data: existingUser } = await supabase
                     .from('usuarios')
@@ -107,7 +103,6 @@ const usersController = {
                 }
             }
             
-            // Prepara o objeto de atualização
             const updateData = {
                 nome_completo,
                 email,
@@ -115,7 +110,6 @@ const usersController = {
                 tipo_usuario
             };
 
-            // Se uma nova senha foi fornecida, criptografa e adiciona ao objeto
             if (senha) {
                 updateData.senha = await bcrypt.hash(senha, 10);
             }
@@ -132,7 +126,6 @@ const usersController = {
                 return res.status(404).json({ error: 'Usuário não encontrado' });
             }
             
-            // Remove a senha do objeto antes de enviar
             const { senha: _, ...userWithoutPassword } = data;
             res.json(userWithoutPassword);
         } catch (error) {
@@ -167,12 +160,10 @@ const usersController = {
         try {
             console.log('Iniciando busca de usuários...');
             
-            // Verifica se o Supabase está configurado
             if (!supabase) {
                 throw new Error('Cliente Supabase não inicializado');
             }
 
-            // Busca todos os usuários
             const { data: users, error } = await supabase
                 .from('usuarios')
                 .select('*')
@@ -185,7 +176,6 @@ const usersController = {
 
             console.log(`Usuários encontrados: ${users?.length || 0}`);
 
-            // Formata os dados para a view
             const formattedUsers = users.map(user => ({
                 id: user.id,
                 nome_completo: user.nome_completo,
@@ -195,7 +185,6 @@ const usersController = {
                 data_cadastro: user.created_at
             }));
 
-            // Renderiza a página com os dados
             return res.render('pages/users', {
                 users: formattedUsers || [],
                 error: null
@@ -203,7 +192,6 @@ const usersController = {
 
         } catch (error) {
             console.error('Erro detalhado ao listar usuários:', error);
-            // Renderiza a página com erro
             return res.render('pages/users', {
                 users: [],
                 error: 'Erro ao carregar usuários. Por favor, tente novamente mais tarde.'

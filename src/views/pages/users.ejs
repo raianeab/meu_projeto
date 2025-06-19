@@ -71,7 +71,6 @@
     </div>
 </div>
 
-<!-- Modal de Usuário -->
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -127,14 +126,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('userForm');
     const saveButton = document.getElementById('saveUser');
 
-    // Função para limpar o formulário
     function clearForm() {
         form.reset();
         document.getElementById('userId').value = '';
         document.getElementById('userModalLabel').textContent = 'Novo Usuário';
     }
 
-    // Função para editar usuário
     document.querySelectorAll('.edit-user').forEach(button => {
         button.addEventListener('click', async function() {
             const id = this.dataset.id;
@@ -158,7 +155,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Função para salvar usuário
     saveButton.addEventListener('click', async function() {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
@@ -194,10 +190,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Limpar formulário quando o modal for fechado
     document.getElementById('userModal').addEventListener('hidden.bs.modal', clearForm);
 
-    // Inicializa o DataTable
     $('#usersTable').DataTable({
         language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' },
         order: [[3, 'desc']],
@@ -205,7 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
         responsive: true
     });
 
-    // Adicionar ao final do script:
     document.querySelectorAll('.delete-user').forEach(button => {
         button.addEventListener('click', async function() {
             const id = this.dataset.id;

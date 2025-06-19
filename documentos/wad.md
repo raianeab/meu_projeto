@@ -240,35 +240,121 @@ src/
          ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1749223713/tela4_bylrxm.png)
 <sup> Fonte: Autoral, 2025</sup> </div> <br>
 
-
 #### 3.7.3 Tecnologias Utilizadas
 
-- **Bootstrap 5**: Framework CSS para design responsivo
-- **Font Awesome**: Ícones modernos e intuitivos
-- **DataTables**: Plugin para tabelas interativas
-- **JavaScript**: Interatividade e manipulação do DOM
-- **EJS**: Template engine para renderização dinâmica
+- **Node.js + Express**: Backend leve e escalável baseado em JavaScript  
+- **PostgreSQL (Supabase)**: Banco de dados relacional com hospedagem e APIs integradas  
+- **EJS**: Template engine para renderização dinâmica do frontend  
+- **Bootstrap 5**: Framework CSS para design responsivo e componentes prontos  
+- **DataTables**: Plugin para criação de tabelas interativas com ordenação e busca  
+- **Font Awesome**: Biblioteca de ícones modernos e intuitivos  
+- **JavaScript**: Linguagem de programação para interatividade e manipulação do DOM  
+- **Joi**: Biblioteca para validação de dados no backend  
+- **bcrypt**: Criptografia de senhas para autenticação segura  
+- **Session-based Auth**: Gerenciamento de sessões para autenticação  
+- **Vercel / Railway**: Plataformas de deploy do backend e frontend  
+- **Supabase**: Hospedagem do banco de dados e gerenciamento de autenticação  
 
-O frontend do sistema foi desenvolvido com foco em usabilidade, performance e manutenibilidade, utilizando as melhores práticas de desenvolvimento web moderno. 
+O frontend do sistema foi desenvolvido com foco em usabilidade, performance e manutenibilidade, utilizando as melhores práticas de desenvolvimento web moderno.
+
+
 ---
 
 ## <a name="c4"></a>4. Desenvolvimento da Aplicação Web (Semana 8)
 
 ### 4.1 Demonstração do Sistema Web (Semana 8)
 
-*VIDEO: Insira o link do vídeo demonstrativo nesta seção*
-*Descreva e ilustre aqui o desenvolvimento do sistema web completo, explicando brevemente o que foi entregue em termos de código e sistema. Utilize prints de tela para ilustrar.*
+*VIDEO: https://youtu.be/BllS5E6PK6U*
+
+Desenvolvi um sistema web completo de gerenciamento de eventos utilizando Node.js, Express, EJS como template engine, PostgreSQL via Supabase como banco de dados, e Bootstrap para a interface. Segue abaixo a atual estrutura do projeto
+
+Arquitetura do Sistema
+Estrutura de Pastas
+
+meu_projeto/
+├── src/
+│   ├── config/          # Configuração do banco (Supabase)
+│   ├── controllers/     # Lógica de negócio
+│   ├── models/          # Schemas de validação (Joi)
+│   ├── repositories/    # Camada de acesso a dados
+│   ├── routes/          # Definição de rotas
+│   ├── services/        # Serviços intermediários
+│   ├── views/           # Templates EJS
+│   ├── middlewares/     # Middlewares de autenticação
+│   └── migrations/      # Scripts de migração do banco
+├── assets/              # Imagens e recursos estáticos
+└── documentos/          # Documentação do projeto
+
+### Funcionalidades Implementadas
+
+#### 1. Sistema de Autenticação
+- Login e logout de usuários  
+- Registro de novos usuários  
+- Três tipos de usuário: **Admin**, **Organizador**, **Participante**  
+- Criptografia de senhas com **bcrypt**  
+
+#### 2. Gerenciamento de Usuários
+- CRUD completo de usuários  
+- Listagem com **DataTables**  
+- Filtros e paginação  
+- Validação de dados com **Joi**  
+
+#### 3. Gerenciamento de Eventos
+- Criação, edição e exclusão de eventos  
+- Categorização de eventos  
+- Controle de vagas disponíveis  
+- Status dos eventos: **ativo**, **cancelado**, **encerrado**  
+- Associação de eventos com organizadores  
+
+#### 4. Sistema de Inscrições
+- Inscrição de participantes em eventos  
+- Controle de status da inscrição: **pendente**, **confirmada**, **cancelada**  
+- Verificação automática de vagas disponíveis  
+
+#### 5. Sistema de Certificados
+- Geração automática de certificados para participantes  
+- Controle de emissão  
+- Armazenamento e gerenciamento dos arquivos de certificados  
+
+#### 6. Sistema de Feedback
+- Avaliação de eventos pelos participantes  
+- Comentários e notas de **1 a 5**  
+- Relatórios de satisfação com base nas avaliações  
+
+#### 7. Categorias de Eventos
+- CRUD completo de categorias  
+- Associação de categorias com eventos  
 
 ### 4.2 Conclusões e Trabalhos Futuros (Semana 8)
 
-*Indique pontos fortes e pontos a melhorar de maneira geral.*
-*Relacione também quaisquer outras ideias que você tenha para melhorias futuras.*
+Desenvolver este sistema foi uma experiência desafiadora e enriquecedora. Embora ainda existam aspectos a melhorar, acredito que consegui construir uma aplicação funcional e bem estruturada para o gerenciamento de eventos, com atenção à usabilidade, segurança e organização do código.
+
+Durante o processo, enfrentei diversas dificuldades, como configurar corretamente o sistema de autenticação por sessões, lidar com validações de dados no backend e garantir a integridade das relações no banco de dados. Também tive desafios com a responsividade da interface e a clareza das mensagens exibidas aos usuários. Para superar esses obstáculos, busquei referências em sistemas reais, revisei conceitos, testei diferentes abordagens e, quando necessário, reescrevi partes do código com base nos aprendizados adquiridos.
+
+Ainda há espaço para otimizações e aprimoramentos, tanto na experiência do usuário quanto na estrutura técnica da aplicação. A seguir, estão listados alguns pontos fortes, aspectos a melhorar e sugestões para o futuro:
+
+#### Ideias para Melhorias Futuras
+Painel personalizado para cada tipo de usuário (Admin, Organizador, Participante), com funcionalidades específicas e interface adaptada.
+
+Envio automático de e-mails: confirmação de inscrição, emissão de certificados, etc.
+
+Sistema de notificação interna (por exemplo, avisos de eventos próximos).
+
+Relatórios mais detalhados com gráficos e dados de engajamento dos usuários.
+
+Exportação de dados (CSV, PDF) para facilitar a gestão externa de informações.
+
+API RESTful pública para integração com outros sistemas ou apps móveis.
 
 
 
 ## <a name="c5"></a>5. Referências
 
-_Incluir as principais referências de seu projeto, para que o leitor possa consultar caso ele se interessar em aprofundar._<br>
+SYMPLA
+SYMPLA. Plataforma de eventos e venda de ingressos online. Disponível em: https://www.sympla.com.br. Acesso em: 18 jun. 2025.
+
+EVENTBRITE
+EVENTBRITE. Encontre e organize eventos. Disponível em: https://www.eventbrite.com. Acesso em: 18 jun. 2025.
 
 ---
 ---

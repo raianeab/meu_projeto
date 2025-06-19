@@ -4,8 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "migration": "node ./src/migrations/migration.js production && node ./src/migrations/migration.js development",
-    "start": "node server.js"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "migrate": "node src/migrations/migration.js"
   },
   "keywords": [],
   "author": "",

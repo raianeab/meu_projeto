@@ -4,10 +4,8 @@ const bcrypt = require('bcrypt');
 
 async function updatePassword(email, newPassword) {
     try {
-        // Criptografa a nova senha
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        // Atualiza a senha no banco de dados
         const { data, error } = await supabase
             .from('usuarios')
             .update({ senha: hashedPassword })
@@ -24,7 +22,4 @@ async function updatePassword(email, newPassword) {
     }
 }
 
-// Exemplo de uso:
-// Substitua 'seu-email@exemplo.com' pelo email do usuário
-// e 'nova-senha' pela senha desejada
 updatePassword('seu-email@exemplo.com', 'nova-senha'); 

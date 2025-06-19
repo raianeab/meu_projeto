@@ -11,7 +11,8 @@ class Events {
       tipo_evento: Joi.string().max(50).required(),
       vagas_disponiveis: Joi.number().integer().min(0).required(),
       publico_alvo: Joi.string().max(200).required(),
-      id_organizador: Joi.string().uuid().required()
+      id_organizador: Joi.string().uuid().required(),
+      id_categoria: Joi.string().uuid().required()
     });
   }
 }

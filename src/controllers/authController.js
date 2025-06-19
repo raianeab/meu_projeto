@@ -6,7 +6,6 @@ const authController = {
         try {
             const { email, senha } = req.body;
 
-            // Busca o usuário pelo email
             const { data: user, error } = await supabase
                 .from('usuarios')
                 .select('*')
@@ -17,19 +16,15 @@ const authController = {
                 return res.render('pages/login', { error: 'Email ou senha inválidos' });
             }
 
-            // Verifica a senha
             const senhaValida = await bcrypt.compare(senha, user.senha);
             if (!senhaValida) {
                 return res.render('pages/login', { error: 'Email ou senha inválidos' });
             }
 
-            // Remove a senha do objeto do usuário antes de enviar
             const { senha: _, ...userWithoutPassword } = user;
 
-            // Armazena o usuário na sessão
             req.session.user = userWithoutPassword;
 
-            // Redireciona para a página inicial
             res.redirect('/home');
         } catch (error) {
             console.error('Erro ao fazer login:', error);
@@ -41,12 +36,10 @@ const authController = {
         try {
             const { nome_completo, email, senha, confirmar_senha, tipo_usuario } = req.body;
 
-            // Verifica se as senhas coincidem
             if (senha !== confirmar_senha) {
                 return res.render('pages/register', { error: 'As senhas não coincidem' });
             }
 
-            // Verifica se o email já está em uso
             const { data: existingUser } = await supabase
                 .from('usuarios')
                 .select('email')
@@ -57,10 +50,8 @@ const authController = {
                 return res.render('pages/register', { error: 'Este email já está em uso' });
             }
 
-            // Criptografa a senha
             const hashedPassword = await bcrypt.hash(senha, 10);
 
-            // Cria o novo usuário
             const { data: newUser, error } = await supabase
                 .from('usuarios')
                 .insert([
@@ -79,13 +70,10 @@ const authController = {
                 return res.render('pages/register', { error: 'Erro ao criar usuário' });
             }
 
-            // Remove a senha do objeto do usuário
             const { senha: _, ...userWithoutPassword } = newUser;
 
-            // Armazena o usuário na sessão
             req.session.user = userWithoutPassword;
 
-            // Redireciona para a página inicial
             res.redirect('/home');
         } catch (error) {
             console.error('Erro ao registrar usuário:', error);

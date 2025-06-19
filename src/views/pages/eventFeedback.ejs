@@ -8,7 +8,6 @@
                     <h4 class="mb-0">Feedback de Eventos</h4>
                 </div>
                 <div class="card-body">
-                    <!-- Formulário de Feedback -->
                     <form id="feedbackForm" class="mb-4">
                         <div class="mb-3">
                             <label for="eventId" class="form-label">Evento</label>
@@ -37,7 +36,6 @@
                         <button type="submit" class="btn btn-primary">Enviar Feedback</button>
                     </form>
 
-                    <!-- Lista de Feedbacks -->
                     <h5>Feedbacks Recentes</h5>
                     <div class="table-responsive">
                         <table class="table table-striped" id="feedbacksTable">
@@ -80,7 +78,6 @@
     </div>
 </div>
 
-<!-- Modal de Edição de Feedback -->
 <div class="modal fade" id="feedbackEditModal" tabindex="-1" aria-labelledby="feedbackEditModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -125,7 +122,6 @@
     </div>
 </div>
 
-<!-- Scripts -->
 <script>
 document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -160,7 +156,6 @@ document.getElementById('feedbackForm').addEventListener('submit', async (e) => 
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Editar feedback
     const editModal = new bootstrap.Modal(document.getElementById('feedbackEditModal'));
     const editForm = document.getElementById('feedbackEditForm');
     let editingFeedbackId = null;
@@ -207,7 +202,6 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Erro ao atualizar feedback: ' + error.message);
         }
     });
-    // Deletar feedback
     document.querySelectorAll('.delete-feedback').forEach(button => {
         button.addEventListener('click', async function() {
             const id = this.dataset.id;

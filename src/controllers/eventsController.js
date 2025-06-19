@@ -18,7 +18,8 @@ const eventsController = {
         tipo_evento, 
         vagas_disponiveis, 
         publico_alvo, 
-        id_organizador 
+        id_organizador, 
+        id_categoria
       } = value;
 
       const { data, error: supabaseError } = await supabase
@@ -33,6 +34,7 @@ const eventsController = {
           vagas_disponiveis,
           publico_alvo,
           id_organizador,
+          id_categoria,
           status: 'ativo'
         }])
         .select();
@@ -63,6 +65,11 @@ const eventsController = {
   async findById(req, res) {
     try {
       const { id } = req.params;
+      
+      if (!id || typeof id !== 'string') {
+        return res.status(400).json({ error: 'ID inválido' });
+      }
+
       const { data, error } = await supabase
         .from('eventos')
         .select('*')
@@ -98,7 +105,8 @@ const eventsController = {
         tipo_evento, 
         vagas_disponiveis, 
         publico_alvo, 
-        id_organizador 
+        id_organizador, 
+        id_categoria
       } = value;
       
       const { data, error: supabaseError } = await supabase
@@ -112,7 +120,8 @@ const eventsController = {
           tipo_evento,
           vagas_disponiveis,
           publico_alvo,
-          id_organizador
+          id_organizador,
+          id_categoria
         })
         .eq('id', id)
         .select()
@@ -133,6 +142,11 @@ const eventsController = {
   async delete(req, res) {
     try {
       const { id } = req.params;
+      
+      if (!id || typeof id !== 'string') {
+        return res.status(400).json({ error: 'ID inválido' });
+      }
+
       const { data, error } = await supabase
         .from('eventos')
         .delete()
@@ -171,25 +185,15 @@ const eventsController = {
 
       if (categoriesError) throw categoriesError;
 
-      const { data: eventCategories, error: eventCategoriesError } = await supabase
-        .from('eventos_categorias')
-        .select('*');
-
-      if (eventCategoriesError) throw eventCategoriesError;
-
-      // Busca organizadores (usuários com tipo 'organizador' ou 'admin')
       const { data: organizadores, error: organizadoresError } = await supabase
         .from('usuarios')
         .select('id, nome_completo, email')
-        .in('tipo_usuario', ['organizador', 'admin'])
         .order('nome_completo', { ascending: true });
 
       if (organizadoresError) throw organizadoresError;
 
-      const formattedEvents = events.map(event => {
-        const eventCategory = eventCategories?.find(ec => ec.id_evento === event.id);
-        const category = categories?.find(c => c.id === eventCategory?.id_categoria);
-
+      const formattedEvents = (events || []).map(event => {
+        const category = categories?.find(c => c.id === event.id_categoria);
         return {
           id: event.id,
           titulo: event.titulo,
