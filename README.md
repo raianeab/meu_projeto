@@ -2,6 +2,24 @@
 
 Uma plataforma web completa para gerenciamento de eventos, desenvolvida com Node.js, Express, EJS e PostgreSQL via Supabase. O sistema permite criar eventos, gerenciar inscrições, acompanhar participação e emitir certificados de forma automatizada.
 
+## Screenshots do Sistema
+
+### Header e Navegação
+![Header e Navegação](https://res.cloudinary.com/dt8qannja/image/upload/v1750293381/Captura_de_tela_2025-06-18_213319_mniruu.png)
+*Menu de navegação responsivo com links para todas as seções do sistema, ícones intuitivos e design moderno*
+
+### Página de Eventos
+![Página de Eventos](https://res.cloudinary.com/dt8qannja/image/upload/v1750293381/Captura_de_tela_2025-06-18_213235_uu7bxz.png)
+*Lista de eventos em formato de cards com filtros por categoria e status, formulário modal para criação/edição*
+
+### Página de Usuários
+![Página de Usuários](https://res.cloudinary.com/dt8qannja/image/upload/v1750293381/Captura_de_tela_2025-06-18_213157_ad96sa.png)
+*Tabela responsiva com lista de usuários, filtros e busca, formulário para adicionar/editar usuários*
+
+### Página de Inscrições
+![Página de Inscrições](https://res.cloudinary.com/dt8qannja/image/upload/v1750293381/Captura_de_tela_2025-06-18_213033_outwxb.png)
+*Lista de inscrições com status visual, formulário para criar novas inscrições, edição rápida de status*
+
 ## Estrutura do Projeto
 
 ```

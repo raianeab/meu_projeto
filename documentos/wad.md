@@ -208,7 +208,7 @@ src/
    - Menu de navegação responsivo com links para todas as seções do sistema
    - Ícones intuitivos para melhor experiência do usuário
    - Design moderno e limpo
-   ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1749223684/tela1_kxxdcw.png)
+   ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1750293381/Captura_de_tela_2025-06-18_213319_mniruu.png)
 <sup> Fonte: Autoral, 2025</sup> </div> <br>
 
 
@@ -218,7 +218,7 @@ src/
    - Formulário modal para criação/edição de eventos
    - Visualização detalhada de cada evento
    
-   ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1749223694/tela2_rl4pqe.png)
+   ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1750293381/Captura_de_tela_2025-06-18_213235_uu7bxz.png)
 <sup> Fonte: Autoral, 2025</sup> </div> <br>
 
 
@@ -228,7 +228,7 @@ src/
    - Filtros e busca
    - Formulário para adicionar/editar usuários
    - Gerenciamento de perfis
-         ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1749223703/tela3_rqt3gn.png)
+         ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1750293381/Captura_de_tela_2025-06-18_213157_ad96sa.png)
 <sup> Fonte: Autoral, 2025</sup> </div> <br>
 
 
@@ -237,7 +237,7 @@ src/
    - Formulário para criar novas inscrições
    - Edição rápida de status
    - Integração com eventos e usuários
-         ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1749223713/tela4_bylrxm.png)
+         ![Front-end](https://res.cloudinary.com/dt8qannja/image/upload/v1750293381/Captura_de_tela_2025-06-18_213033_outwxb.png)
 <sup> Fonte: Autoral, 2025</sup> </div> <br>
 
 #### 3.7.3 Tecnologias Utilizadas
