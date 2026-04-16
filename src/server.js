@@ -59,7 +59,7 @@ app.get('/', (req, res) => {
   if (req.session && req.session.user) {
     res.redirect('/dashboard');
   } else {
-    res.render('pages/landing');
+    res.render('pages/landing', { turnstileSiteKey: process.env.TURNSTILE_SITE_KEY });
   }
 });
 
@@ -76,7 +76,7 @@ const dataRoutes = require('./routes/dataRoutes');
 app.use('/', dataRoutes);
 
 const leadsRoutes = require('./routes/leadsRoutes');
-app.use('/', leadsRoutes);
+app.use('/api', leadsRoutes);
 
 app.get('/test', (req, res) => {
   res.json({ message: 'API está funcionando!' });

@@ -1,4 +1,10 @@
-const supabase = require('../config/db');
+const { createClient } = require('@supabase/supabase-js');
+
+// Usa service-role key para bypassar RLS nas inserções de leads (tabela pública)
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 const leadsRepository = {
 
