@@ -78,7 +78,7 @@ async function createUserFromInvite({ email, companyId, nomeCompleto, passwordHa
 const emailService = require('./emailService');
 
 async function sendInviteEmail(email, token) {
-    const link = `http://localhost:3000/convite/${token}`;
+    const link = `${process.env.APP_URL}/convite/${token}`;
 
     await emailService.sendEmail({
         to: email,
@@ -106,7 +106,7 @@ async function validateInvite(token) {
 
 
 async function sendResetPasswordEmail(email, token) {
-    const link = `http://localhost:3000/convite/${token}`;
+    const link = `${process.env.APP_URL}/convite/${token}`;
     await emailService.sendEmail({
         to: email,
         subject: 'Redefinição de senha',
