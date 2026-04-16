@@ -5,15 +5,11 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const supabase = require('./config/db');
 const app = express();
-const usersRoutes = require('./routes/usersRoutes');
-const categoriesRoutes = require('./routes/categoriesRoutes');
-const eventsRoutes = require('./routes/eventsRoutes');
-const certificatesRoutes = require('./routes/certificatesRoutes');
-const inscriptionsRoutes = require('./routes/inscriptionsRoutes');
-const eventCategoriesRoutes = require('./routes/eventCategoriesRoutes');
-const eventFeedbacksRoutes = require('./routes/eventFeedbacksRoutes');
 const authRoutes = require('./routes/authRoutes');
-const HomeController = require('./controllers/HomeController');
+
+
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 // Configuração do EJS
@@ -60,35 +56,27 @@ const isAuthenticated = (req, res, next) => {
 };
 
 app.get('/', (req, res) => {
-  if (req.session.user) {
-    res.redirect('/home');
+  if (req.session && req.session.user) {
+    res.redirect('/dashboard');
   } else {
-    res.redirect('/auth/login');
+    res.render('pages/landing');
   }
 });
 
-app.get('/home', isAuthenticated, HomeController.index);
+const dashboardRoutes = require('./routes/dashboardRoutes');
+app.use('/', dashboardRoutes);
 
-app.use('/events', isAuthenticated, eventsRoutes);
-app.use('/users', isAuthenticated, usersRoutes);
-app.use('/categories', isAuthenticated, categoriesRoutes);
-app.use('/inscriptions', isAuthenticated, inscriptionsRoutes);
-app.use('/certificates', isAuthenticated, certificatesRoutes);
-app.use('/event-feedbacks', isAuthenticated, eventFeedbacksRoutes);
+const inviteRoutes = require('./routes/inviteRoutes');
+app.use('/', inviteRoutes);
 
-app.use('/api/events', isAuthenticated, eventsRoutes);
-app.use('/api/users', isAuthenticated, usersRoutes);
-app.use('/api/categories', isAuthenticated, categoriesRoutes);
-app.use('/api/inscriptions', isAuthenticated, inscriptionsRoutes);
-app.use('/api/certificates', isAuthenticated, certificatesRoutes);
-app.use('/api/event-feedbacks', isAuthenticated, eventFeedbacksRoutes);
+const companyUsersRoutes = require('./routes/companyUsersRoutes');
+app.use('/', companyUsersRoutes);
 
-app.use('/events/page', isAuthenticated, eventsRoutes);
-app.use('/users/page', isAuthenticated, usersRoutes);
-app.use('/categories/page', isAuthenticated, categoriesRoutes);
-app.use('/inscriptions/page', isAuthenticated, inscriptionsRoutes);
-app.use('/certificates/page', isAuthenticated, certificatesRoutes);
-app.use('/event-feedbacks/page', isAuthenticated, eventFeedbacksRoutes);
+const dataRoutes = require('./routes/dataRoutes');
+app.use('/', dataRoutes);
+
+const leadsRoutes = require('./routes/leadsRoutes');
+app.use('/', leadsRoutes);
 
 app.get('/test', (req, res) => {
   res.json({ message: 'API está funcionando!' });
@@ -108,6 +96,8 @@ app.use((err, req, res, next) => {
     error: process.env.NODE_ENV === 'development' ? err : {}
   });
 });
+
+
 
 const PORT = process.env.PORT || 3000;
 

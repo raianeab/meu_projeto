@@ -1,0 +1,188 @@
+/* ESTILIZAÇÃO DA PÁGINA DE INSERÇÃO DE DADOS */
+.page-data h1 {
+  font-size: 32px;
+  margin-bottom: 0px;
+  color: var(--azul-petroleo);
+}
+
+.page-data .subtitle {
+  color: var(--cinza-medio);
+  margin-bottom: 24px;
+  font-size: 16px;
+}
+
+/* CARD PRINCIPAL */
+.page-data .card {
+  background: var(--branco);
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  margin-bottom: 10px;
+}
+
+/* SEÇÃO DE INFORMAÇÕES */
+.page-data .info-section {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(15, 42, 61, 0.05);
+  border-radius: 8px;
+  margin-bottom: 32px;
+  border-left: 4px solid var(--azul-petroleo);
+}
+
+.page-data .info-icon {
+  color: var(--azul-petroleo);
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.page-data .info-text h3 {
+  margin: 0 0 8px 0;
+  color: var(--azul-petroleo);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.page-data .info-text p {
+  margin: 0;
+  color: var(--preto-carvao);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* SEÇÃO DE DOWNLOAD */
+.page-data .download-section {
+  text-align: center;
+  padding: 24px;
+  background: var(--cinza-claro);
+  border-radius: 8px;
+  margin-bottom: 32px;
+}
+
+.page-data .download-button {
+  background: var(--laranja-energetico);
+  color: var(--branco);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.page-data .download-button:hover {
+  background: #e55a00;
+  transform: translateY(-2px);
+}
+
+.page-data .download-button i {
+  font-size: 18px;
+}
+
+.page-data .download-hint {
+  margin-top: 12px;
+  color: var(--cinza-medio);
+  font-size: 13px;
+}
+
+/* SEÇÃO DE UPLOAD */
+.page-data .upload-section {
+  margin-top: 24px;
+}
+
+.page-data .file-input-wrapper {
+  margin-bottom: 24px;
+}
+
+.page-data .file-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  border: 2px dashed var(--cinza-medio);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--cinza-claro);
+  text-align: center;
+}
+
+.page-data .file-label:hover {
+  border-color: var(--azul-petroleo);
+  background: rgba(15, 42, 61, 0.05);
+}
+
+.page-data .file-label i {
+  font-size: 48px;
+  color: var(--azul-petroleo);
+  margin-bottom: 16px;
+}
+
+.page-data .file-label span {
+  color: var(--preto-carvao);
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.page-data .file-input {
+  display: none;
+}
+
+.page-data .form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.page-data .primary-button {
+  background: var(--azul-petroleo);
+  color: var(--branco);
+  border: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 12px rgba(15, 42, 61, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.page-data .primary-button:hover {
+  background: #0a1f2d;
+  transform: translateY(-2px);
+}
+
+.page-data .primary-button i {
+  font-size: 18px;
+}
+
+/* MENSAGENS DE ERRO E SUCESSO */
+.page-data .error {
+  color: var(--laranja-energetico);
+  margin-bottom: 16px;
+  font-weight: 500;
+  padding: 12px;
+  background: rgba(255, 107, 0, 0.1);
+  border-radius: 6px;
+  border-left: 4px solid var(--laranja-energetico);
+}
+
+.page-data .success {
+  color: var(--verde-floresta);
+  margin-bottom: 16px;
+  font-weight: 500;
+  padding: 12px;
+  background: rgba(31, 122, 99, 0.1);
+  border-radius: 6px;
+  border-left: 4px solid var(--verde-floresta);
+}

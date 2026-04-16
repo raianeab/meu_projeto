@@ -1,0 +1,93 @@
+<%- include('../partials/header') %>
+
+<link rel="stylesheet" href="/css/pagesCSS/data.css">
+<link rel="stylesheet" href="/css/layout.css">
+
+<style>
+  .page-container {
+    padding: 32px 16px;
+  }
+</style>
+
+<div class="app-content page-data">
+
+  <h1>Inserir Dados</h1>
+  <p class="subtitle">Faça upload dos seus dados seguindo o template disponibilizado</p>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <p class="error"><%= error %></p>
+  <% } %>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <p class="success"><%= success %></p>
+  <% } %>
+
+  <!-- CARD PRINCIPAL -->
+  <div class="card">
+    <div class="info-section">
+      <div class="info-icon">
+        <i class="fas fa-info-circle"></i>
+      </div>
+      <div class="info-text">
+        <h3>Importante</h3>
+        <p>
+          Os dados devem seguir o template disponibilizado.
+          Certifique-se de que o arquivo está no formato correto antes de fazer o upload.
+        </p>
+      </div>
+    </div>
+
+    <!-- DOWNLOAD DO TEMPLATE -->
+    <div class="download-section">
+      <a 
+        href="/template/template_dados.xlsx"
+        download
+        class="download-button"
+      >
+        <i class="fas fa-download"></i>
+        Baixar Template
+      </a>
+      <p class="download-hint">
+        Baixe o arquivo de exemplo para verificar o formato correto
+      </p>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="upload-section">
+      <form method="POST" action="/dados/upload" enctype="multipart/form-data" id="uploadForm">
+        <div class="file-input-wrapper">
+          <label for="fileInput" class="file-label">
+            <i class="fas fa-file-upload"></i>
+            <span id="fileLabelText">Selecione um arquivo</span>
+          </label>
+
+          <input 
+            type="file"
+            id="fileInput"
+            name="arquivo"
+            accept=".csv,.xlsx,.xls"
+            required
+            class="file-input"
+          />
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="primary-button">
+            <i class="fas fa-upload"></i>
+            Enviar Dados
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('fileInput').addEventListener('change', function (e) {
+    const fileName = e.target.files[0]?.name || 'Selecione um arquivo';
+    document.getElementById('fileLabelText').textContent = fileName;
+  });
+</script>
+
+<%- include('../partials/footer') %>

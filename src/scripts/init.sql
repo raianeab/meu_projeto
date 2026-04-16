@@ -3,7 +3,8 @@ create table usuarios (
   nome_completo varchar(255) not null,
   telefone varchar(20),
   tipo_usuario varchar(20) not null check (tipo_usuario in ('organizador', 'participante', 'admin')),
-  data_cadastro timestamp with time zone default now()
+  data_cadastro timestamp with time zone default now(),
+  company_id uuid references companies(id)
 );
 
 create table categorias (
@@ -57,3 +58,22 @@ create table eventos_feedbacks (
   comentario text,
   data_envio timestamp with time zone default now()
 );
+
+create table companies (
+    id uuid primary key default gen_random_uuid(),
+    name text not null,
+    power_bi_workspace_id text,
+    power_bi_report_id text,
+    created_at timestamp default now()
+);
+
+create table user_invites (
+    id uuid primary key default gen_random_uuid(),
+    email text not null,
+    company_id uuid not null references companies(id),
+    token text not null,
+    expires_at timestamp not null,
+    used boolean default false,
+    created_at timestamp default now()
+);
+

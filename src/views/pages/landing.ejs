@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metavis · Inteligência Organizacional</title>
+  <meta name="description" content="Transforme dados estruturais da sua empresa em inteligência organizacional real. Decisões mais rápidas, mais precisas, com menos esforço." />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            petroleo: {
+              DEFAULT: '#01192B',
+              dark:    '#010f1a',
+              light:   '#0d2d45',
+              faint:   'rgba(1,25,43,0.6)',
+            },
+            laranja: {
+              DEFAULT: '#EE6D07',
+              dark:    '#c95a00',
+              light:   '#f28336',
+              glow:    'rgba(238,109,7,0.18)',
+            },
+          },
+          fontFamily: {
+            sans: ['Aeonik Pro', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    /* ===== Aeonik Pro Font Face ===== */
+    @font-face {
+      font-family: 'Aeonik Pro';
+      src: url('/fonts/aeonik/AeonikPro-Regular.ttf') format('truetype'),
+           url('/fonts/aeonik/AeonikPro-Regular.otf') format('opentype');
+      font-weight: 400; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Aeonik Pro';
+      src: url('/fonts/aeonik/AeonikPro-Light.otf') format('opentype');
+      font-weight: 300; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Aeonik Pro';
+      src: url('/fonts/aeonik/AeonikPro-Medium.otf') format('opentype');
+      font-weight: 500; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Aeonik Pro';
+      src: url('/fonts/aeonik/AeonikPro-Bold.otf') format('opentype');
+      font-weight: 700; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'Aeonik Pro';
+      src: url('/fonts/aeonik/AeonikPro-Black.otf') format('opentype');
+      font-weight: 900; font-style: normal; font-display: swap;
+    }
+
+    @keyframes gradient-shift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .hero-bg {
+      background: linear-gradient(-45deg, #010f1a, #01192B, #071e30, #010c17);
+      background-size: 400% 400%;
+      animation: gradient-shift 14s ease infinite;
+    }
+
+    .card-glow:hover {
+      box-shadow: 0 0 0 1px rgba(238,109,7,0.2), 0 20px 50px -10px rgba(1,25,43,0.5);
+      transform: translateY(-2px);
+    }
+    .card-glow { transition: all 0.3s ease; }
+
+    .orange-border { background: linear-gradient(90deg, #FF6B00, rgba(255,107,0,0.3), #FF6B00); height: 1px; }
+    .divider      { background: rgba(255,255,255,0.07); height: 1px; }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    .dot-pattern {
+      background-image: radial-gradient(circle, rgba(255,107,0,0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    .blur-orb {
+      filter: blur(90px);
+      opacity: 0.25;
+      pointer-events: none;
+    }
+
+    .orange-badge {
+      background: rgba(255,107,0,0.12);
+      border: 1px solid rgba(255,107,0,0.3);
+      color: #FF6B00;
+    }
+
+    .step-connector {
+      position: absolute;
+      top: 28px;
+      right: -50%;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(255,107,0,0.4), transparent);
+    }
+
+    /* Form focus ring laranja */
+    .lead-input:focus {
+      outline: none;
+      border-color: #FF6B00;
+      box-shadow: 0 0 0 3px rgba(255,107,0,0.15);
+    }
+
+    /* Loading state do form */
+    .btn-submit-loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    /* Animação do check de sucesso */
+    @keyframes pop-in {
+      0%   { transform: scale(0.5); opacity: 0; }
+      70%  { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .success-pop { animation: pop-in 0.4s ease forwards; }
+  </style>
+</head>
+
+<body class="bg-petroleo-dark text-white font-sans antialiased" style="font-family: 'Aeonik Pro', system-ui, sans-serif;">
+
+  <!-- ========== NAVBAR ========== -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-petroleo-dark/90 backdrop-blur-md border-b border-white/5">
+    <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+
+      <a href="/" class="flex items-center">
+        <img src="/images/logos/Metavis%20-%20Logotipo%20-%20Branco.png"
+             alt="Metavis"
+             style="height: 28px; object-fit: contain;"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+        <span style="display:none;" class="text-2xl font-bold tracking-tight">Metavis<span class="text-laranja">.</span></span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-10 text-sm text-white/60">
+        <a href="#solucao"       class="hover:text-white transition-colors">Solução</a>
+        <a href="#como-funciona" class="hover:text-white transition-colors">Como funciona</a>
+        <a href="#seguranca"     class="hover:text-white transition-colors">Segurança</a>
+        <a href="#beneficios"    class="hover:text-white transition-colors">Benefícios</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="/auth/login" class="text-sm text-white/50 hover:text-white transition-colors hidden sm:block">
+          Entrar
+        </a>
+        <a href="#interesse"
+           class="text-sm bg-laranja hover:bg-laranja-dark text-white px-5 py-2.5 rounded-lg font-semibold transition-colors shadow-lg shadow-laranja/20">
+          Solicitar acesso
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+
+  <!-- ========== HERO ========== -->
+  <section class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+
+    <div class="absolute inset-0 hero-bg"></div>
+    <div class="absolute inset-0 dot-pattern"></div>
+
+    <!-- Glass cube decorativo — cobre a tela toda -->
+    <div class="absolute inset-0 pointer-events-none select-none overflow-hidden">
+      <img src="/images/branding/metavis-glass-cube-01.png" alt=""
+           style="position:absolute; top:0; right:0; height:100%; width:100%; object-fit:cover; opacity:0.38;"
+           draggable="false">
+    </div>
+
+    <div class="relative max-w-6xl mx-auto px-6 py-20 w-full">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+
+        <!-- Texto -->
+        <div>
+          <h1 class="text-4xl md:text-5xl font-extrabold leading-[1.1] tracking-tight mb-4">
+            Sua empresa,<br/>
+            <span class="text-laranja">vista por dentro.</span>
+          </h1>
+
+          <p class="text-base text-white/65 leading-relaxed mb-8 max-w-lg">
+            Transforme dados estruturais da sua organização em inteligência real.
+            Identifique padrões, antecipe riscos e tome decisões com base em
+            análises profundas.
+          </p>
+
+        </div>
+
+        <!-- Formulário Hero -->
+        <div id="hero-form-wrapper" class="bg-white/[0.04] border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+          <h3 class="text-lg font-bold mb-1.5">Solicite acesso antecipado</h3>
+          <p class="text-white/50 text-sm mb-4">Preencha abaixo e nossa equipe entra em contato.</p>
+
+          <form id="hero-lead-form" class="space-y-3">
+            <div>
+              <label class="block text-sm font-medium text-white/70 mb-1.5">Seu nome completo</label>
+              <input type="text" name="nome" required placeholder="Ex: João Silva"
+                class="lead-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder-white/25 transition-all" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-white/70 mb-1.5">Nome da empresa</label>
+              <input type="text" name="nome_empresa" required placeholder="Ex: Acme Consultoria"
+                class="lead-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder-white/25 transition-all" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-white/70 mb-1.5">E-mail corporativo</label>
+              <input type="email" name="email" required placeholder="voce@empresa.com"
+                class="lead-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder-white/25 transition-all" />
+            </div>
+
+            <div id="hero-form-error" class="hidden text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-3"></div>
+
+            <button type="submit" id="hero-submit-btn"
+              class="w-full bg-laranja hover:bg-laranja-dark text-white font-bold py-2.5 rounded-lg text-sm transition-all shadow-lg shadow-laranja/20 flex items-center justify-center gap-2">
+              <span id="hero-btn-text">Solicitar acesso gratuito</span>
+              <svg id="hero-spinner" class="hidden animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+            </button>
+
+          </form>
+
+          <!-- Sucesso -->
+          <div id="hero-form-success" class="hidden text-center py-6 success-pop">
+            <div class="w-14 h-14 bg-laranja/15 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-7 h-7 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h4 class="font-bold text-lg mb-2">Recebemos seu interesse!</h4>
+            <p class="text-white/50 text-sm">Nossa equipe vai entrar em contato em breve.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-petroleo-dark to-transparent"></div>
+  </section>
+
+
+  <!-- ========== PROBLEMA (transição de cores — sem imagem) ========== -->
+  <section id="solucao" class="relative py-16 px-6" style="background: linear-gradient(to bottom, #010f1a 0%, #071825 50%, #0a1e2e 100%);">
+    <!-- fade-out embaixo fundindo com a próxima seção -->
+    <div class="absolute bottom-0 left-0 right-0 h-40 pointer-events-none" style="background: linear-gradient(to bottom, transparent, #0a1e2e);"></div>
+    <div class="max-w-6xl mx-auto">
+
+      <div class="text-center mb-10 fade-up">
+        <span class="text-laranja text-sm font-semibold uppercase tracking-widest">O problema</span>
+        <h2 class="text-3xl md:text-4xl font-bold mt-3 mb-3 leading-tight">
+          Dados existem.<br/>
+          <span class="text-white/30">Inteligência, não.</span>
+        </h2>
+        <p class="text-white/55 text-base max-w-2xl mx-auto leading-relaxed">
+          A maioria das empresas coleta dados sobre pessoas e estrutura organizacional,
+          mas não consegue extrair inteligência acionável. O resultado são decisões baseadas
+          em intuição — não em evidência.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 fade-up">
+
+        <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 card-glow">
+          <div class="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10" />
+            </svg>
+          </div>
+          <h3 class="font-semibold mb-2">Dados dispersos</h3>
+          <p class="text-sm text-white/45 leading-relaxed">Informações em planilhas desconectadas que ninguém consegue cruzar de forma confiável.</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 card-glow">
+          <div class="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="font-semibold mb-2">Análises lentas</h3>
+          <p class="text-sm text-white/45 leading-relaxed">Gerar um relatório sobre estrutura organizacional leva dias — quando deveria levar minutos.</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 card-glow">
+          <div class="w-10 h-10 bg-laranja/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="font-semibold mb-2">Decisões cegas</h3>
+          <p class="text-sm text-white/45 leading-relaxed">Sem visibilidade real, líderes decidem por intuição — e arcam com as consequências.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========== SOLUÇÃO + COMO FUNCIONA (cube-02 ao fundo das 2 seções) ========== -->
+  <div class="relative overflow-hidden" style="background: #0a1e2e;">
+    <!-- cube-02 ao fundo -->
+    <div class="absolute inset-0 pointer-events-none select-none">
+      <img src="/images/branding/metavis-glass-cube-02.png" alt=""
+           style="position:absolute; top:0; left:0; height:100%; width:100%; object-fit:cover; object-position: left center; opacity:0.4;"
+           draggable="false">
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-l from-[#0a1e2e] via-[#0a1e2e]/80 to-transparent pointer-events-none"></div>
+    <!-- Gradiente de transição: funde com a seção "O problema" acima -->
+    <div class="absolute top-0 left-0 right-0 pointer-events-none" style="height: 180px; background: linear-gradient(to bottom, #091d2d 0%, 50%, transparent 100%);"></div>
+
+  <!-- ========== SOLUÇÃO ========== -->
+  <section class="relative py-16 px-6 pb-0">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="text-center mb-8 fade-up">
+        <span class="text-laranja text-sm font-semibold uppercase tracking-widest">A solução</span>
+        <h2 class="text-3xl md:text-4xl font-bold mt-3 leading-tight">
+          Metavis transforma estrutura<br/>
+          em <span class="text-laranja">inteligência</span>.
+        </h2>
+      </div>
+
+      <div class="fade-up flex justify-end pb-24">
+        <div class="space-y-6 max-w-md">
+          <div class="flex gap-4">
+            <div class="w-8 h-8 bg-laranja/15 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-4 h-4 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-1">Visão estrutural completa</h4>
+              <p class="text-sm text-white/45 leading-relaxed">Entenda a composição da sua organização: hierarquia, distribuição de papéis e gaps de competência.</p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-8 h-8 bg-laranja/15 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-4 h-4 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-1">Análises por camadas</h4>
+              <p class="text-sm text-white/45 leading-relaxed">Filtre por departamento, senioridade ou cargo. Cada corte revela uma perspectiva diferente.</p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="w-8 h-8 bg-laranja/15 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-4 h-4 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-1">Inteligência sempre atualizada</h4>
+              <p class="text-sm text-white/45 leading-relaxed">Novo upload, novos insights imediatos. Sem relatórios manuais, sem espera.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== COMO FUNCIONA ========== -->
+  <section id="como-funciona" class="relative py-16 px-6">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="text-center mb-10 fade-up">
+        <span class="text-laranja text-sm font-semibold uppercase tracking-widest">Processo</span>
+        <h2 class="text-3xl md:text-4xl font-bold mt-3 mb-3 leading-tight">
+          Da planilha ao insight<br/>em 3 passos.
+        </h2>
+        <p class="text-white/45 text-base max-w-xl mx-auto">
+          Sem integrações complexas. Sem código. Sem consultores externos.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 fade-up">
+
+        <div class="relative">
+          <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 h-full card-glow">
+            <span class="text-5xl font-black text-laranja/15 leading-none">01</span>
+            <div class="w-10 h-10 bg-laranja/12 rounded-xl flex items-center justify-center mt-3 mb-4">
+              <svg class="w-6 h-6 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Upload dos dados</h3>
+            <p class="text-white/45 text-sm leading-relaxed">
+              Faça upload da planilha de dados estruturais da sua equipe usando o template padronizado da Metavis. Excel ou CSV, sem fricção.
+            </p>
+          </div>
+          <div class="hidden md:block absolute top-12 -right-4 w-8 text-laranja/30 z-10">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 h-full card-glow">
+            <span class="text-5xl font-black text-laranja/15 leading-none">02</span>
+            <div class="w-10 h-10 bg-laranja/12 rounded-xl flex items-center justify-center mt-3 mb-4">
+              <svg class="w-6 h-6 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Processamento automático</h3>
+            <p class="text-white/45 text-sm leading-relaxed">
+              A Metavis valida, estrutura e processa os dados automaticamente. Nenhuma configuração manual necessária da sua parte.
+            </p>
+          </div>
+          <div class="hidden md:block absolute top-12 -right-4 w-8 text-laranja/30 z-10">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </div>
+        </div>
+
+        <div>
+          <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 h-full card-glow">
+            <span class="text-5xl font-black text-laranja/15 leading-none">03</span>
+            <div class="w-10 h-10 bg-laranja/12 rounded-xl flex items-center justify-center mt-3 mb-4">
+              <svg class="w-6 h-6 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Inteligência disponível</h3>
+            <p class="text-white/45 text-sm leading-relaxed">
+              Acesse análises estruturais profundas, comparativas e projeções — em uma interface clara, acessível a qualquer liderança.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  </div><!-- fim wrapper cube-02 -->
+
+
+  <!-- ========== SEGURANÇA ========== -->
+  <section id="seguranca" class="relative py-16 px-6 bg-petroleo-dark" style="background: linear-gradient(to bottom, #0a1e2e 0%, #010f1a 12%, #01192B 100%) !important;">
+    <!-- fade-out embaixo fundindo com benefícios -->
+    <div class="absolute bottom-0 left-0 right-0 h-48 pointer-events-none" style="background: linear-gradient(to bottom, transparent, #0a1e2e);"></div>
+    <div class="max-w-6xl mx-auto">
+
+      <div class="text-center mb-10 fade-up">
+        <span class="text-laranja text-sm font-semibold uppercase tracking-widest">Segurança</span>
+        <h2 class="text-3xl md:text-4xl font-bold mt-3 mb-3 leading-tight">
+          Seus dados.<br/>
+          <span class="text-laranja">Só seus.</span>
+        </h2>
+        <p class="text-white/55 text-base max-w-2xl mx-auto leading-relaxed">
+          Dados organizacionais são sensíveis por natureza. Construímos a Metavis
+          com segurança no centro — não como um add-on.
+        </p>
+      </div>
+
+      <!-- Destaque de segurança -->
+      <div class="grid md:grid-cols-2 gap-6 mb-8 fade-up">
+
+        <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 card-glow">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 bg-laranja/12 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-base mb-1.5">Controle de acesso por função</h3>
+              <p class="text-white/45 text-sm leading-relaxed">
+                Defina quem vê o quê. Administradores têm visão completa; membros da equipe acessam apenas o que precisam. Sem permissões desnecessárias.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Cards menores de segurança -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 fade-up">
+
+        <div class="bg-white/[0.025] border border-white/6 rounded-xl p-5">
+          <div class="w-9 h-9 bg-laranja/10 rounded-lg flex items-center justify-center mb-3">
+            <svg class="w-4.5 h-4.5 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:18px;height:18px">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <h4 class="font-semibold text-sm mb-1">Infraestrutura Azure</h4>
+          <p class="text-xs text-white/40 leading-relaxed">Dados hospedados em infraestrutura enterprise com criptografia em trânsito e em repouso.</p>
+        </div>
+
+        <div class="bg-white/[0.025] border border-white/6 rounded-xl p-5">
+          <div class="w-9 h-9 bg-laranja/10 rounded-lg flex items-center justify-center mb-3">
+            <svg style="width:18px;height:18px" class="text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+          </div>
+          <h4 class="font-semibold text-sm mb-1">Upload com validação</h4>
+          <p class="text-xs text-white/40 leading-relaxed">Arquivos são validados, processados e descartados do servidor. Nada é armazenado além dos dados estruturados.</p>
+        </div>
+
+        <div class="bg-white/[0.025] border border-white/6 rounded-xl p-5">
+          <div class="w-9 h-9 bg-laranja/10 rounded-lg flex items-center justify-center mb-3">
+            <svg style="width:18px;height:18px" class="text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+          </div>
+          <h4 class="font-semibold text-sm mb-1">Senhas com hash seguro</h4>
+          <p class="text-xs text-white/40 leading-relaxed">Nenhuma senha é armazenada em texto puro. Utilizamos bcrypt com salt para proteção máxima.</p>
+        </div>
+
+        <div class="bg-white/[0.025] border border-white/6 rounded-xl p-5">
+          <div class="w-9 h-9 bg-laranja/10 rounded-lg flex items-center justify-center mb-3">
+            <svg style="width:18px;height:18px" class="text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h4 class="font-semibold text-sm mb-1">Sistema de convites</h4>
+          <p class="text-xs text-white/40 leading-relaxed">Novos usuários só entram por convite autenticado. Nenhum acesso não autorizado é possível.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========== BENEFÍCIOS + PERSPECTIVA TOTAL (cube-03 ao fundo das 2 seções) ========== -->
+  <div class="relative overflow-hidden" style="background: #0a1e2e;">
+    <!-- cube-03 ao fundo — imagem mais comprida cobre as 2 seções -->
+    <div class="absolute inset-0 pointer-events-none select-none">
+      <img src="/images/branding/metavis-glass-cube-03.png" alt=""
+           style="position:absolute; top:0; left:0; height:100%; width:100%; object-fit:cover; object-position: bottom left; opacity:0.5;"
+           draggable="false">
+    </div>
+    <!-- Gradiente suave de entrada no topo -->
+    <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(to bottom, #0a1e2e 0%, rgba(10,30,46,0.5) 30%, transparent 60%);"></div>
+
+  <!-- ========== BENEFÍCIOS ========== -->
+  <section id="beneficios" class="relative py-16 px-6">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="text-center mb-10 fade-up">
+        <span class="text-laranja text-sm font-semibold uppercase tracking-widest">Por que Metavis</span>
+        <h2 class="text-3xl md:text-4xl font-bold mt-3 leading-tight">
+          Feito para quem decide.
+        </h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 fade-up">
+
+        <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 card-glow">
+          <div class="w-10 h-10 bg-laranja/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <h3 class="font-semibold mb-2">Velocidade de decisão</h3>
+          <p class="text-sm text-white/45 leading-relaxed">Reduza o tempo entre a pergunta e a resposta. De semanas de análise para minutos de insight.</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 card-glow">
+          <div class="w-10 h-10 bg-laranja/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h3 class="font-semibold mb-2">Acesso por equipe</h3>
+          <p class="text-sm text-white/45 leading-relaxed">Convide líderes e gestores com controle de acesso granular. Cada um vê o que precisa ver.</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 card-glow">
+          <div class="w-10 h-10 bg-laranja/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+            </svg>
+          </div>
+          <h3 class="font-semibold mb-2">Sempre atualizado</h3>
+          <p class="text-sm text-white/45 leading-relaxed">Basta fazer um novo upload. A inteligência é recalculada com os dados mais recentes, imediatamente.</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 card-glow">
+          <div class="w-10 h-10 bg-laranja/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+            </svg>
+          </div>
+          <h3 class="font-semibold mb-2">Análises comparativas</h3>
+          <p class="text-sm text-white/45 leading-relaxed">Compare períodos, áreas e cenários para entender o que mudou — e o que precisa mudar.</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 card-glow">
+          <div class="w-10 h-10 bg-laranja/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </div>
+          <h3 class="font-semibold mb-2">Facilidade para operar</h3>
+          <p class="text-sm text-white/45 leading-relaxed">Nenhuma integração de API, nenhum script. Fácil de operar, sem dependências técnicas.</p>
+        </div>
+
+        <div class="bg-white/[0.03] border border-white/8 rounded-2xl p-6 card-glow">
+          <div class="w-10 h-10 bg-laranja/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <h3 class="font-semibold mb-2">Profundidade real</h3>
+          <p class="text-sm text-white/45 leading-relaxed">Não é apenas visualização. É uma camada de inteligência que transforma dados em decisões melhores.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ========== FORMULÁRIO DE INTERESSE (ÂNCORA) ========== -->
+  <section id="interesse" class="relative py-16 px-6">
+    <div class="max-w-5xl mx-auto fade-up">
+
+      <div class="relative border border-white/8 rounded-3xl overflow-hidden">
+        <!-- Faixa laranja no topo -->
+        <div class="h-1 bg-laranja w-full"></div>
+
+        <div class="grid md:grid-cols-2 gap-0">
+
+          <!-- Texto explicativo -->
+          <div class="p-8 md:p-10 flex flex-col justify-center" style="background: rgba(255,107,0,0.04);">
+            <h2 class="text-2xl md:text-3xl font-bold mb-3 leading-tight">
+              Pronto para ver sua organização por dentro?
+            </h2>
+            <p class="text-white/50 text-sm leading-relaxed mb-6">
+              Preencha o formulário e nossa equipe entra em contato para apresentar a plataforma e entender o contexto da sua empresa.
+            </p>
+          </div>
+
+          <!-- Formulário -->
+          <div class="p-8 md:p-10 bg-white/[0.02]">
+
+            <form id="bottom-lead-form" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-white/65 mb-1.5">Nome completo *</label>
+                <input type="text" name="nome" required placeholder="Ex: Maria Souza"
+                  class="lead-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder-white/20 transition-all" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-white/65 mb-1.5">Nome da empresa *</label>
+                <input type="text" name="nome_empresa" required placeholder="Ex: Grupo Horizonte"
+                  class="lead-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder-white/20 transition-all" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-white/65 mb-1.5">E-mail corporativo *</label>
+                <input type="email" name="email" required placeholder="voce@empresa.com"
+                  class="lead-input w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder-white/20 transition-all" />
+              </div>
+
+              <div id="bottom-form-error" class="hidden text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-3"></div>
+
+              <button type="submit" id="bottom-submit-btn"
+                class="w-full bg-laranja hover:bg-laranja-dark text-white font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-laranja/25 flex items-center justify-center gap-2">
+                <span id="bottom-btn-text">Quero conhecer a Metavis</span>
+                <svg id="bottom-spinner" class="hidden animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+              </button>
+            </form>
+
+            <!-- Sucesso -->
+            <div id="bottom-form-success" class="hidden text-center py-8 success-pop">
+              <div class="w-16 h-16 bg-laranja/15 rounded-full flex items-center justify-center mx-auto mb-5">
+                <svg class="w-8 h-8 text-laranja" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h4 class="font-bold text-xl mb-2">Interesse registrado!</h4>
+              <p class="text-white/45 text-sm">Nossa equipe vai entrar em contato em breve. Fique de olho no seu e-mail.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  </div><!-- fim wrapper cube-03 -->
+
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="border-t border-white/5 py-12 px-6 bg-petroleo-dark">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div>
+          <a href="/" class="text-xl font-bold tracking-tight">
+            Metavis<span class="text-laranja">.</span>
+          </a>
+          <p class="text-white/25 text-sm mt-1">Inteligência organizacional para empresas que crescem.</p>
+        </div>
+        <div class="flex items-center gap-8 text-sm text-white/35">
+          <a href="/auth/login"    class="hover:text-white/60 transition-colors">Entrar</a>
+          <a href="#solucao"       class="hover:text-white/60 transition-colors">Solução</a>
+          <a href="#como-funciona" class="hover:text-white/60 transition-colors">Como funciona</a>
+          <a href="#seguranca"     class="hover:text-white/60 transition-colors">Segurança</a>
+        </div>
+      </div>
+      <div class="divider mt-8 mb-5"></div>
+      <p class="text-center text-white/20 text-xs">&copy; 2025 Metavis. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+
+  <!-- ========== SCRIPTS ========== -->
+  <script>
+    // Animações de entrada
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+      { threshold: 0.08 }
+    );
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    });
+
+    // Envio de formulário genérico
+    async function handleLeadForm(formId, submitBtnId, btnTextId, spinnerId, errorId, successId) {
+      const form    = document.getElementById(formId);
+      const btn     = document.getElementById(submitBtnId);
+      const btnText = document.getElementById(btnTextId);
+      const spinner = document.getElementById(spinnerId);
+      const errorEl = document.getElementById(errorId);
+      const successEl = document.getElementById(successId);
+
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Loading state
+        btn.classList.add('btn-submit-loading');
+        btnText.textContent = 'Enviando...';
+        spinner.classList.remove('hidden');
+        errorEl.classList.add('hidden');
+
+        const data = Object.fromEntries(new FormData(form).entries());
+
+        try {
+          const res = await fetch('/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          const json = await res.json();
+
+          if (res.ok) {
+            form.classList.add('hidden');
+            successEl.classList.remove('hidden');
+          } else {
+            errorEl.textContent = json.error || 'Erro ao enviar. Tente novamente.';
+            errorEl.classList.remove('hidden');
+          }
+        } catch {
+          errorEl.textContent = 'Erro de conexão. Verifique sua internet e tente novamente.';
+          errorEl.classList.remove('hidden');
+        } finally {
+          btn.classList.remove('btn-submit-loading');
+          btnText.textContent = btn.id === 'hero-submit-btn' ? 'Solicitar acesso gratuito' : 'Quero conhecer a Metavis';
+          spinner.classList.add('hidden');
+        }
+      });
+    }
+
+    handleLeadForm('hero-lead-form',   'hero-submit-btn',   'hero-btn-text',   'hero-spinner',   'hero-form-error',   'hero-form-success');
+    handleLeadForm('bottom-lead-form', 'bottom-submit-btn', 'bottom-btn-text', 'bottom-spinner', 'bottom-form-error', 'bottom-form-success');
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+<%- include('../partials/header') %>
+
+<!-- Link para o CSS específico de cadastro -->
+<link rel="stylesheet" href="/css/pagesCSS/login.css">
+
+<div class="login-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="card login-card">
+                    <div class="card-body">
+                        <div class="login-header">
+                            <h2>Complete seu cadastro</h2>
+                            <p>Finalize sua conta no Metavis</p>
+                        </div>
+                        
+                        <% if (typeof error !== 'undefined' && error) { %>
+                            <div class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i> <%= error %>
+                            </div>
+                        <% } %>
+
+                        <form method="POST" action="/convite/definir-senha" id="completeRegisterForm">
+                            <input type="hidden" name="token" value="<%= token %>">
+
+                            <div class="mb-3">
+                                <label for="nome_completo" class="form-label">Nome completo</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="nome_completo" 
+                                    name="nome_completo" 
+                                    placeholder="Seu nome completo"
+                                    required
+                                >
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Senha</label>
+                                <input 
+                                    type="password" 
+                                    class="form-control" 
+                                    id="password" 
+                                    name="password" 
+                                    placeholder="••••••••"
+                                    required
+                                    minlength="6"
+                                >
+                                <small class="form-text text-muted">Mínimo de 6 caracteres</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Confirmar senha</label>
+                                <input 
+                                    type="password" 
+                                    class="form-control" 
+                                    id="confirmPassword" 
+                                    name="confirmPassword" 
+                                    placeholder="••••••••"
+                                    required
+                                    minlength="6"
+                                >
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-login">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    Criar conta
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('completeRegisterForm').addEventListener('submit', function(e) {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('As senhas não coincidem!');
+        return false;
+    }
+
+    if (password.length < 6) {
+        e.preventDefault();
+        alert('A senha deve ter no mínimo 6 caracteres!');
+        return false;
+    }
+});
+</script>
+
+<%- include('../partials/footer') %>

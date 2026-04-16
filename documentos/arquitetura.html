@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metavis — Arquitetura do Sistema</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #1a1a2e;
+      background: #fff;
+      padding: 0;
+    }
+
+    /* ── Print Setup ── */
+    @media print {
+      body { font-size: 10pt; }
+      .page-break { page-break-before: always; }
+      .no-break { page-break-inside: avoid; }
+      h1, h2, h3 { page-break-after: avoid; }
+      pre, table { page-break-inside: avoid; }
+      .cover { page-break-after: always; }
+    }
+
+    /* ── Cover Page ── */
+    .cover {
+      background: linear-gradient(135deg, #01192B 0%, #023b5c 60%, #01192B 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -100px; right: -100px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: rgba(238,109,7,0.15);
+    }
+    .cover::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -80px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(238,109,7,0.08);
+    }
+    .cover-badge {
+      display: inline-block;
+      background: #EE6D07;
+      color: #fff;
+      font-size: 9pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 32px;
+    }
+    .cover h1 {
+      font-size: 42pt;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+    }
+    .cover h1 span { color: #EE6D07; }
+    .cover-subtitle {
+      font-size: 14pt;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 48px;
+      max-width: 500px;
+    }
+    .cover-meta {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .cover-meta-item { }
+    .cover-meta-item .label {
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 4px;
+    }
+    .cover-meta-item .value {
+      font-size: 11pt;
+      font-weight: 600;
+      color: #fff;
+    }
+    .cover-divider {
+      width: 60px;
+      height: 4px;
+      background: #EE6D07;
+      border-radius: 2px;
+      margin: 32px 0;
+    }
+    .cover-stack {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+    .stack-tag {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.85);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 9pt;
+    }
+
+    /* ── Content ── */
+    .content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 56px;
+    }
+
+    /* ── Section ── */
+    .section {
+      margin-bottom: 48px;
+    }
+
+    /* ── Headings ── */
+    h2 {
+      font-size: 18pt;
+      font-weight: 800;
+      color: #01192B;
+      border-bottom: 3px solid #EE6D07;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2 .num {
+      background: #EE6D07;
+      color: #fff;
+      font-size: 10pt;
+      font-weight: 700;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    h3 {
+      font-size: 12pt;
+      font-weight: 700;
+      color: #01192B;
+      margin: 20px 0 10px;
+    }
+    h4 {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #2c5282;
+      margin: 14px 0 6px;
+    }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 9.5pt;
+    }
+    thead tr {
+      background: #01192B;
+      color: #fff;
+    }
+    thead th {
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    tbody tr:nth-child(even) { background: #f7f9fc; }
+    tbody tr:hover { background: #eef2f8; }
+    tbody td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 8pt;
+      font-weight: 600;
+    }
+    .badge-orange { background: #fff3e0; color: #c45b00; }
+    .badge-blue   { background: #e8f0fe; color: #1a56db; }
+    .badge-green  { background: #e6f4ea; color: #1e7e34; }
+    .badge-red    { background: #fce8e6; color: #c5221f; }
+    .badge-gray   { background: #f1f3f4; color: #5f6368; }
+
+    /* ── Code & Pre ── */
+    pre {
+      background: #0f1923;
+      color: #a8d8ea;
+      padding: 16px 20px;
+      border-radius: 8px;
+      font-size: 8.5pt;
+      line-height: 1.65;
+      overflow-x: auto;
+      margin: 12px 0;
+      border-left: 4px solid #EE6D07;
+    }
+    code {
+      background: #f1f3f4;
+      color: #c45b00;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 9pt;
+    }
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    /* ── Callout ── */
+    .callout {
+      background: #fff8f0;
+      border-left: 4px solid #EE6D07;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+      font-size: 9.5pt;
+    }
+    .callout strong { color: #c45b00; }
+
+    .callout-blue {
+      background: #eff6ff;
+      border-left-color: #01192B;
+    }
+    .callout-blue strong { color: #01192B; }
+
+    /* ── Bug Table ── */
+    .bug-row td:first-child { color: #c5221f; font-weight: 700; }
+
+    /* ── Flow Diagram ── */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 16px 0;
+      align-items: flex-start;
+    }
+    .flow-box {
+      background: #01192B;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 9.5pt;
+      font-weight: 600;
+      width: fit-content;
+      min-width: 220px;
+    }
+    .flow-box.accent { background: #EE6D07; }
+    .flow-box.light { background: #f1f3f4; color: #01192B; }
+    .flow-arrow {
+      font-size: 14pt;
+      color: #EE6D07;
+      padding: 2px 18px;
+      line-height: 1;
+    }
+
+    /* ── Grid Cards ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin: 14px 0;
+    }
+    .card {
+      background: #f7f9fc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      border-top: 3px solid #EE6D07;
+    }
+    .card h4 { margin-top: 0; }
+    .card ul { padding-left: 16px; font-size: 9.5pt; margin-top: 6px; }
+    .card ul li { margin-bottom: 3px; }
+
+    /* ── Separator ── */
+    .sep {
+      height: 1px;
+      background: linear-gradient(to right, #EE6D07, transparent);
+      margin: 40px 0;
+    }
+
+    /* ── Footer ── */
+    .doc-footer {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 8.5pt;
+      padding: 20px 0 30px;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 40px;
+    }
+
+    /* ── Toc ── */
+    .toc {
+      background: #f7f9fc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 40px;
+    }
+    .toc h3 { margin-top: 0; color: #01192B; font-size: 11pt; margin-bottom: 12px; }
+    .toc ol { padding-left: 20px; }
+    .toc ol li { padding: 3px 0; font-size: 9.5pt; color: #2d3748; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     CAPA
+══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-badge">Documentação Técnica</div>
+  <h1>Meta<span>vis</span></h1>
+  <p class="cover-subtitle">Plataforma SaaS de Inteligência Organizacional e People Analytics</p>
+  <div class="cover-divider"></div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="label">Documento</div>
+      <div class="value">Arquitetura do Sistema</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Versão</div>
+      <div class="value">1.0</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Data</div>
+      <div class="value">Abril 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Ambiente</div>
+      <div class="value">Node.js + Supabase + Power BI</div>
+    </div>
+  </div>
+  <div class="cover-stack">
+    <span class="stack-tag">Node.js</span>
+    <span class="stack-tag">Express 5</span>
+    <span class="stack-tag">EJS</span>
+    <span class="stack-tag">Supabase / PostgreSQL</span>
+    <span class="stack-tag">Power BI Embedded</span>
+    <span class="stack-tag">Azure OAuth2</span>
+    <span class="stack-tag">Bootstrap 5</span>
+    <span class="stack-tag">Multer</span>
+    <span class="stack-tag">bcrypt</span>
+    <span class="stack-tag">Nodemailer</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CONTEÚDO
+══════════════════════════════════════════ -->
+<div class="content">
+
+  <!-- Sumário -->
+  <div class="toc no-break">
+    <h3>Sumário</h3>
+    <ol>
+      <li>Visão Geral do Sistema</li>
+      <li>Stack Tecnológica</li>
+      <li>Estrutura de Pastas</li>
+      <li>Fluxo de Requisição</li>
+      <li>Banco de Dados — Schema</li>
+      <li>API — Endpoints</li>
+      <li>Autenticação e Sessão</li>
+      <li>Fluxo de Convite de Usuários</li>
+      <li>Fluxo de Upload de Dados</li>
+      <li>Integração Power BI</li>
+      <li>Multi-tenancy</li>
+      <li>Design System</li>
+      <li>Variáveis de Ambiente</li>
+      <li>Dependências</li>
+      <li>Bugs Conhecidos</li>
+    </ol>
+  </div>
+
+  <!-- ── 1. Visão Geral ── -->
+  <div class="section">
+    <h2><span class="num">1</span> Visão Geral do Sistema</h2>
+    <p>
+      Metavis é um SaaS <strong>multi-tenant</strong> para people analytics e inteligência organizacional.
+      Empresas carregam planilhas de dados de RH, que são processadas e armazenadas por empresa.
+      Cada empresa possui um relatório <strong>Power BI Embedded</strong> configurado, exibido em
+      um dashboard seguro. Administradores gerenciam usuários via convite por e-mail.
+    </p>
+
+    <div class="card-grid" style="margin-top:18px">
+      <div class="card">
+        <h4>Funcionalidades Principais</h4>
+        <ul>
+          <li>Autenticação com sessão e roles</li>
+          <li>Convite de usuários por token</li>
+          <li>Upload de planilha xlsx/csv com validação</li>
+          <li>Upsert em lote de dados de RH</li>
+          <li>Dashboard Power BI embedded por empresa</li>
+          <li>Captura de leads na landing page</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Modelo de Multi-tenancy</h4>
+        <ul>
+          <li>Cada usuário tem <code>company_id</code></li>
+          <li>Todas as queries filtram por empresa</li>
+          <li>Tabela <code>dados</code>: chave <code>(company_id, EmployeeID)</code></li>
+          <li>Power BI: workspace/relatório por empresa</li>
+          <li>Limite de usuários por empresa configurável</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 2. Stack ── -->
+  <div class="section no-break">
+    <h2><span class="num">2</span> Stack Tecnológica</h2>
+    <table>
+      <thead>
+        <tr><th>Camada</th><th>Tecnologia</th><th>Propósito</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Runtime</td><td><strong>Node.js</strong></td><td>Execução JavaScript server-side</td></tr>
+        <tr><td>Framework</td><td><strong>Express 5</strong></td><td>Roteamento, middlewares, servidor HTTP</td></tr>
+        <tr><td>Template Engine</td><td><strong>EJS</strong></td><td>Renderização de HTML server-side</td></tr>
+        <tr><td>Banco de Dados</td><td><strong>Supabase (PostgreSQL)</strong></td><td>Armazenamento relacional + cliente JS</td></tr>
+        <tr><td>BI Embedded</td><td><strong>Power BI Embedded</strong></td><td>Relatórios interativos por empresa</td></tr>
+        <tr><td>Auth Azure</td><td><strong>Azure OAuth2 (Service Principal)</strong></td><td>Autenticação para APIs Power BI</td></tr>
+        <tr><td>Upload</td><td><strong>Multer</strong></td><td>Processamento multipart/form-data</td></tr>
+        <tr><td>Parsing</td><td><strong>xlsx + csv-parse</strong></td><td>Leitura de planilhas Excel e CSV</td></tr>
+        <tr><td>Segurança</td><td><strong>bcrypt</strong></td><td>Hash de senhas</td></tr>
+        <tr><td>Sessão</td><td><strong>express-session</strong></td><td>Autenticação session-based</td></tr>
+        <tr><td>E-mail</td><td><strong>Nodemailer</strong></td><td>Envio de convites e reset de senha</td></tr>
+        <tr><td>CSS Landing</td><td><strong>Tailwind CSS CDN</strong></td><td>Página pública (não autenticada)</td></tr>
+        <tr><td>CSS App</td><td><strong>Bootstrap 5</strong></td><td>Páginas autenticadas</td></tr>
+        <tr><td>HTTP Client</td><td><strong>axios</strong></td><td>Chamadas à Power BI API</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 3. Estrutura de Pastas ── -->
+  <div class="section">
+    <h2><span class="num">3</span> Estrutura de Pastas</h2>
+    <pre>meu_projeto/
+├── src/
+│   ├── server.js                     # Entry point: Express, rotas, middlewares
+│   ├── config/
+│   │   └── db.js                     # Supabase client singleton
+│   ├── controllers/
+│   │   ├── authController.js         # Login, registro, logout, check
+│   │   ├── dashboardController.js    # Dashboard + embed Power BI
+│   │   ├── dataController.js         # Upload e upsert de dados
+│   │   ├── inviteController.js       # Aceite de convite / reset senha
+│   │   ├── usersCompanyController.js # Gestão de usuários da empresa
+│   │   └── leadsController.js        # Captura de leads
+│   ├── services/
+│   │   ├── dataService.js            # Parsing xlsx/csv + normalização
+│   │   ├── dashboardService.js       # Dados do dashboard por empresa
+│   │   ├── emailService.js           # Nodemailer transporter
+│   │   ├── inviteService.js          # Token de convite + criação user
+│   │   ├── leadsService.js           # Registro de leads com dedup
+│   │   ├── powerBIService.js         # Azure OAuth2 + embed token
+│   │   └── userService.js            # Gestão de usuários
+│   ├── repositories/
+│   │   ├── companyRepository.js      # CRUD companies
+│   │   ├── leadsRepository.js        # CRUD leads
+│   │   └── usersRepository.js        # CRUD usuarios
+│   ├── middlewares/
+│   │   ├── authMiddleware.js         # isAuthenticated, isAdmin, isOrganizer
+│   │   └── uploadMiddleware.js       # Multer: xlsx/xls/csv, 10 MB
+│   ├── routes/
+│   │   ├── authRoutes.js             # /auth/*
+│   │   ├── dashboardRoutes.js        # /dashboard
+│   │   ├── dataRoutes.js             # /dados/*
+│   │   ├── inviteRoutes.js           # /convite/*
+│   │   ├── companyUsersRoutes.js     # /usuarios/*
+│   │   └── leadsRoutes.js            # /leads
+│   ├── views/
+│   │   ├── pages/
+│   │   │   ├── landing.ejs           # Homepage pública (Tailwind)
+│   │   │   ├── login.ejs / register.ejs
+│   │   │   ├── dashboard.ejs         # Power BI embedded
+│   │   │   ├── inserir-dados.ejs     # Upload de planilha
+│   │   │   ├── users-company.ejs     # Gestão de usuários
+│   │   │   └── accept-invite.ejs     # Aceite de convite
+│   │   └── partials/
+│   │       ├── header.ejs            # Navbar Bootstrap
+│   │       └── footer.ejs            # Scripts globais
+│   ├── public/
+│   │   ├── css/base.css              # Fontes + variáveis CSS
+│   │   ├── css/layout.css            # Grid e containers
+│   │   ├── css/components.css        # Botões, cards, badges
+│   │   ├── css/pagesCSS/             # Estilos específicos
+│   │   └── fonts/aeonik/             # Fonte Aeonik Pro
+│   └── migrations/setup_database.sql # Schema atual
+├── package.json
+└── .env                              # Variáveis de ambiente</pre>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 4. Fluxo de Requisição ── -->
+  <div class="section no-break">
+    <h2><span class="num">4</span> Fluxo de Requisição</h2>
+
+    <div class="flow">
+      <div class="flow-box">Request HTTP</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box light">server.js &nbsp;—&nbsp; session, flash, body-parser, static files</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box light">Route Module &nbsp;(authRoutes / dashboardRoutes / dataRoutes / ...)</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box light">authMiddleware.isAuthenticated &nbsp;(rotas protegidas)</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box">Controller &nbsp;—&nbsp; entrada/saída HTTP, flash, redirect</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box">Service &nbsp;—&nbsp; lógica de negócio</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-box accent">Repository / Supabase Client &nbsp;→&nbsp; PostgreSQL</div>
+    </div>
+
+    <div class="callout" style="margin-top:16px">
+      <strong>Nota:</strong> As rotas são registradas diretamente em <code>server.js</code>.
+      O arquivo <code>src/routes/index.js</code> existe mas <strong>não é utilizado</strong>.
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 5. Banco de Dados ── -->
+  <div class="section page-break">
+    <h2><span class="num">5</span> Banco de Dados — Schema</h2>
+
+    <h3>Tabelas Ativas</h3>
+
+    <h4>usuarios</h4>
+    <table>
+      <thead><tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>UUID PK</td><td>Chave primária (gerada automaticamente)</td></tr>
+        <tr><td><code>nome_completo</code></td><td>TEXT</td><td>Nome do usuário</td></tr>
+        <tr><td><code>email</code></td><td>TEXT UNIQUE</td><td>E-mail de login</td></tr>
+        <tr><td><code>senha</code></td><td>TEXT</td><td>Hash bcrypt da senha</td></tr>
+        <tr><td><code>telefone</code></td><td>TEXT</td><td>Opcional</td></tr>
+        <tr><td><code>role</code></td><td>TEXT</td><td><code>admin</code>, <code>user</code>, <code>organizador</code></td></tr>
+        <tr><td><code>status</code></td><td>TEXT</td><td><code>active</code> ou <code>inactive</code></td></tr>
+        <tr><td><code>company_id</code></td><td>UUID FK</td><td>Referência à tabela companies</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>Data de criação</td></tr>
+        <tr><td><code>updated_at</code></td><td>TIMESTAMP</td><td>Última atualização</td></tr>
+      </tbody>
+    </table>
+
+    <h4>companies</h4>
+    <table>
+      <thead><tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>UUID PK</td><td>Chave primária</td></tr>
+        <tr><td><code>name</code></td><td>TEXT</td><td>Nome da empresa</td></tr>
+        <tr><td><code>power_bi_workspace_id</code></td><td>TEXT</td><td>ID do workspace no Power BI</td></tr>
+        <tr><td><code>power_bi_report_id</code></td><td>TEXT</td><td>ID do relatório no Power BI</td></tr>
+        <tr><td><code>user_limit</code></td><td>INTEGER</td><td>Limite de usuários da empresa</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>Data de criação</td></tr>
+      </tbody>
+    </table>
+
+    <h4>user_invites</h4>
+    <table>
+      <thead><tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>UUID PK</td><td>Chave primária</td></tr>
+        <tr><td><code>email</code></td><td>TEXT</td><td>E-mail do destinatário</td></tr>
+        <tr><td><code>company_id</code></td><td>UUID FK</td><td>Empresa do convidado</td></tr>
+        <tr><td><code>token</code></td><td>TEXT UNIQUE</td><td>Token hex de 32 bytes (256-bit)</td></tr>
+        <tr><td><code>expires_at</code></td><td>TIMESTAMP</td><td>Validade (now + 1 hora)</td></tr>
+        <tr><td><code>used</code></td><td>BOOLEAN</td><td>Se o token já foi consumido</td></tr>
+        <tr><td><code>type</code></td><td>TEXT</td><td><code>invite</code> ou <code>reset_password</code></td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>Data de criação</td></tr>
+      </tbody>
+    </table>
+
+    <h4>dados &nbsp;<span style="font-weight:400;font-size:9.5pt;color:#666">(tabela principal de people analytics)</span></h4>
+    <div class="callout callout-blue">
+      <strong>Chave de upsert:</strong> <code>(company_id, EmployeeID)</code> —
+      garante que cada funcionário seja único por empresa.
+    </div>
+    <p style="font-size:9.5pt;margin-top:8px">
+      Campos: <code>Business_Unit</code>, <code>SP/Manaus</code>, <code>Group_Macro</code>, <code>Group_Mid</code>, <code>Group_Micro</code>,
+      <code>EmployeeID</code>, <code>EmployeeJobTitle</code>, <code>InternalGrade</code>, <code>EmployeeGroup</code>,
+      <code>Estado</code>, <code>Cidade</code>, <code>Gender</code>, <code>HireDate</code>, <code>BirthDate</code>,
+      <code>ManagerEmployeeID</code>, <code>Monthly_Salary</code>, <code>ICP_Target</code>, <code>ICP_Paid</code>,
+      <code>ILP_Target</code>, <code>ILP_Paid</code>, <code>SB</code>, <code>RDA</code>, <code>Layer</code>,
+      <code>Span</code>, <code>ManagerJobTitle</code>, <code>ManagerGroup</code>, <code>ManagerLayer</code>,
+      <code>IEG</code>, <code>AUX_IEG1</code>, <code>AUX_IEG2</code>, <code>created_at</code>.
+    </p>
+
+    <h4>leads</h4>
+    <table>
+      <thead><tr><th>Campo</th><th>Tipo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>UUID PK</td><td>Chave primária</td></tr>
+        <tr><td><code>nome</code></td><td>TEXT</td><td>Nome do lead</td></tr>
+        <tr><td><code>nome_empresa</code></td><td>TEXT</td><td>Empresa do lead</td></tr>
+        <tr><td><code>email</code></td><td>TEXT</td><td>E-mail do lead</td></tr>
+        <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>Data de captura</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout" style="margin-top:12px">
+      <strong>Tabelas legadas (existem no banco, não são utilizadas):</strong>
+      <code>eventos</code>, <code>inscricoes</code>, <code>categorias</code>,
+      <code>certificados</code>, <code>eventos_feedbacks</code>, <code>eventos_categorias</code>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 6. Endpoints ── -->
+  <div class="section page-break">
+    <h2><span class="num">6</span> API — Endpoints</h2>
+    <table>
+      <thead>
+        <tr><th>Método</th><th>Rota</th><th>Auth</th><th>Descrição</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge-blue">GET</span></td><td><code>/</code></td><td>—</td><td>Autenticado → /dashboard; anônimo → landing</td></tr>
+        <tr><td><span class="badge badge-blue">GET</span></td><td><code>/auth/login</code></td><td>—</td><td>Página de login</td></tr>
+        <tr><td><span class="badge badge-orange">POST</span></td><td><code>/auth/login</code></td><td>—</td><td>Processa login</td></tr>
+        <tr><td><span class="badge badge-blue">GET</span></td><td><code>/auth/register</code></td><td>—</td><td>Página de cadastro</td></tr>
+        <tr><td><span class="badge badge-orange">POST</span></td><td><code>/auth/register</code></td><td>—</td><td>Processa cadastro</td></tr>
+        <tr><td><span class="badge badge-blue">GET</span></td><td><code>/auth/logout</code></td><td><span class="badge badge-green">✓</span></td><td>Encerra sessão</td></tr>
+        <tr><td><span class="badge badge-blue">GET</span></td><td><code>/auth/check</code></td><td><span class="badge badge-green">✓</span></td><td>JSON do usuário logado</td></tr>
+        <tr><td><span class="badge badge-blue">GET</span></td><td><code>/dashboard</code></td><td><span class="badge badge-green">✓</span></td><td>Dashboard com relatório Power BI embedded</td></tr>
+        <tr><td><span class="badge badge-blue">GET</span></td><td><code>/dados</code></td><td><span class="badge badge-green">✓</span></td><td>Página de upload de planilha</td></tr>
+        <tr><td><span class="badge badge-orange">POST</span></td><td><code>/dados/upload</code></td><td><span class="badge badge-green">✓</span></td><td>Processa arquivo e upsert na tabela dados</td></tr>
+        <tr><td><span class="badge badge-blue">GET</span></td><td><code>/convite/:token</code></td><td>—</td><td>Formulário de aceite de convite</td></tr>
+        <tr><td><span class="badge badge-orange">POST</span></td><td><code>/convite/definir-senha</code></td><td>—</td><td>Cria usuário a partir do convite</td></tr>
+        <tr><td><span class="badge badge-blue">GET</span></td><td><code>/usuarios</code></td><td><span class="badge badge-red">Admin</span></td><td>Lista usuários da empresa</td></tr>
+        <tr><td><span class="badge badge-orange">POST</span></td><td><code>/usuarios/convidar</code></td><td><span class="badge badge-red">Admin</span></td><td>Envia convite por e-mail</td></tr>
+        <tr><td><span class="badge badge-orange">POST</span></td><td><code>/usuarios/:id/desativar</code></td><td><span class="badge badge-red">Admin</span></td><td>Desativa usuário</td></tr>
+        <tr><td><span class="badge badge-orange">POST</span></td><td><code>/usuarios/:id/ativar</code></td><td><span class="badge badge-red">Admin</span></td><td>Ativa usuário</td></tr>
+        <tr><td><span class="badge badge-orange">POST</span></td><td><code>/leads</code></td><td>—</td><td>Captura lead da landing page</td></tr>
+        <tr><td><span class="badge badge-blue">GET</span></td><td><code>/test</code></td><td>—</td><td>Health check</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 7. Auth ── -->
+  <div class="section no-break">
+    <h2><span class="num">7</span> Autenticação e Sessão</h2>
+
+    <p>
+      Autenticação por <strong>session-based</strong> com express-session.
+      O objeto <code>req.session.user</code> armazena o usuário logado <em>sem o campo senha</em>.
+    </p>
+
+    <h3>Roles e Middlewares</h3>
+    <table>
+      <thead><tr><th>Role</th><th>Middleware</th><th>Acesso</th></tr></thead>
+      <tbody>
+        <tr><td><code>admin</code></td><td><code>isAdmin</code></td><td>Todas as rotas + gestão de usuários</td></tr>
+        <tr><td><code>organizador</code></td><td><code>isOrganizer</code></td><td>Rotas de conteúdo (não gestão de usuários)</td></tr>
+        <tr><td><code>user</code></td><td><code>isAuthenticated</code></td><td>Dashboard e upload de dados</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Fluxo de Login</h3>
+    <pre>POST /auth/login { email, senha }
+  → authController.login
+  → SELECT * FROM usuarios WHERE email = ?
+  → bcrypt.compare(senha, hash)
+  → Verifica status !== 'inactive'
+  → req.session.user = { id, email, role, company_id, nome_completo, ... }
+  → Redirect /dashboard</pre>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 8. Convite ── -->
+  <div class="section no-break">
+    <h2><span class="num">8</span> Fluxo de Convite de Usuários</h2>
+
+    <pre>1. Admin POST /usuarios/convidar { email }
+   → inviteService.createInvite(email, companyId)
+       → token = crypto.randomBytes(32).toString('hex')
+       → expires_at = now() + 1 hora
+       → INSERT user_invites { email, company_id, token, expires_at, type='invite', used=false }
+   → emailService.sendEmail com link /convite/:token
+
+2. Usuário clica no link
+   → GET /convite/:token
+       → validateInvite: token não usado + não expirado
+       → Render accept-invite.ejs
+
+3. Usuário preenche nome e senha
+   → POST /convite/definir-senha { token, nome_completo, password, confirmPassword }
+       → Valida senha (mín. 8 chars, confirmação)
+       → validateInvite novamente
+       → bcrypt.hash(password, 10)
+       → INSERT usuarios { email, company_id, nome_completo, senha, role, status='active' }
+       → UPDATE user_invites SET used = true WHERE token = ?
+       → Redirect /auth/login</pre>
+
+    <div class="callout">
+      <strong>Auditoria:</strong> Tokens nunca são deletados — apenas marcados como <code>used = true</code>,
+      permitindo rastreabilidade de todos os convites.
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 9. Upload ── -->
+  <div class="section page-break">
+    <h2><span class="num">9</span> Fluxo de Upload de Dados</h2>
+
+    <pre>GET /dados → Página com formulário de upload e link para template
+
+POST /dados/upload  (multipart/form-data, campo: file)
+  → Multer
+      → Salva em src/uploads/upload-{timestamp}-{random}.{ext}
+      → Aceita: .xlsx, .xls, .csv
+      → Limite: 10 MB
+
+  → dataService.processUploadFile(filepath, extension)
+      → .xlsx/.xls: xlsx.readFile() → sheet_to_json({ raw: true })
+      → .csv: csv-parse/sync
+      → Ignora linhas 1 e 2 (cabeçalho duplo do template)
+      → Processa a partir da linha 3 (índice 2)
+      → mapRow: posição da coluna → TECH_COLUMNS [35 campos]
+      → convertTypes:
+          Datas  → serial Excel (base 1899-12-30), M/D/YYYY, DD/MM/YYYY, ISO YYYY-MM-DD
+          Números → remove ponto como milhar, vírgula como decimal
+
+  → Lote de 100 registros por vez
+  → supabase.upsert({ ...batch }, { onConflict: 'company_id,EmployeeID' })
+  → company_id injetado de req.session.user.company_id
+  → Delete do arquivo temporário (sucesso OU erro)
+  → Flash message com contagem de registros e erros
+  → Redirect /dados</pre>
+
+    <h3>Mapeamento de Colunas (TECH_COLUMNS — 35 campos)</h3>
+    <p style="font-size:9.5pt">
+      Mapeamento por <strong>posição</strong> (não por nome), a partir da coluna 0 da linha 3:
+      <code>Business_Unit</code>, <code>SP/Manaus</code>, <code>Group_Macro</code>, <code>Group_Mid</code>,
+      <code>Group_Micro</code>, <code>EmployeeID</code>, <code>EmployeeJobTitle</code>, <code>InternalGrade</code>,
+      <code>EmployeeGroup</code>, <code>Estado</code>, <code>Cidade</code>, <code>Gender</code>,
+      <code>HireDate</code>, <code>BirthDate</code>, <code>ManagerEmployeeID</code>, <code>Monthly_Salary</code>,
+      <code>Monthly_FixedAdditives</code>, <code>SalariesPerYear</code>, <code>ICP_Target</code>,
+      <code>ICP_Paid</code>, <code>ILP_Target</code>, <code>ILP_Paid</code>, <code>SB</code>,
+      <code>RDA</code>, <code>Layer</code>, <code>Span</code>, <code>ManagerJobTitle</code>,
+      <code>ManagerGroup</code>, <code>ManagerLayer</code>, <code>IEG</code>, <code>AUX_IEG1</code>,
+      <code>AUX_IEG2</code>.
+    </p>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 10. Power BI ── -->
+  <div class="section no-break">
+    <h2><span class="num">10</span> Integração Power BI</h2>
+
+    <pre>GET /dashboard
+  → dashboardController.index
+  → dashboardService.getDashboardByCompany(company_id)
+      → SELECT power_bi_workspace_id, power_bi_report_id FROM companies WHERE id = ?
+
+  SE ambos os IDs presentes:
+  → powerBIService.getAzureAccessToken()
+      → POST {AZURE_AUTH_URL}/{AZURE_TENANT_ID}/oauth2/v2.0/token
+      → grant_type: client_credentials
+      → scope: POWER_BI_SCOPE
+      → Token cacheado até expiração (evita chamadas repetidas ao Azure)
+
+  → powerBIService.getEmbedUrl({ workspaceId, reportId })
+      → GET {POWER_BI_API_URL}/groups/{workspaceId}/reports/{reportId}
+      → Retorna embedUrl
+
+  → powerBIService.generateEmbedToken({ workspaceId, reportId })
+      → POST .../reports/{reportId}/GenerateToken
+      → Retorna token de curta duração (embed token)
+
+  → Render dashboard.ejs com { embedUrl, embedToken, reportId }
+  → Frontend: powerbi-client.js (CDN) monta o relatório no iframe</pre>
+
+    <div class="callout">
+      <strong>Bug ativo:</strong> <code>powerBIService.js</code> usa sintaxe ES6 <code>export</code>
+      mas é importado com <code>require()</code> (CommonJS). Fix: substituir por <code>module.exports</code>.
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 11. Multi-tenancy ── -->
+  <div class="section no-break">
+    <h2><span class="num">11</span> Multi-tenancy</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h4>Isolamento de Dados</h4>
+        <ul>
+          <li>Todo usuário tem <code>company_id</code></li>
+          <li>Todas as queries filtram por <code>req.session.user.company_id</code></li>
+          <li>Tabela <code>dados</code>: upsert com chave <code>(company_id, EmployeeID)</code></li>
+          <li>Supabase RLS: desabilitado (modo de teste) — isolamento é por query</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Configuração por Empresa</h4>
+        <ul>
+          <li>Tabela <code>companies</code> define Power BI workspace e relatório</li>
+          <li>Campo <code>user_limit</code> controla quantos usuários podem ser convidados</li>
+          <li>Cada empresa vê apenas seu próprio relatório Power BI</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 12. Design System ── -->
+  <div class="section no-break">
+    <h2><span class="num">12</span> Design System</h2>
+    <table>
+      <thead><tr><th>Token / Componente</th><th>Valor</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td><code>--azul-petroleo</code></td><td><code>#01192B</code></td><td>Cor primária, fundo do header</td></tr>
+        <tr><td><code>--laranja</code></td><td><code>#EE6D07</code></td><td>Acento, botões CTA, destaques</td></tr>
+        <tr><td>Font</td><td>Aeonik Pro</td><td>Todos os textos (hospedada em <code>/public/fonts/aeonik/</code>)</td></tr>
+        <tr><td>Landing page</td><td>Tailwind CSS CDN</td><td>Apenas na página pública (não autenticada)</td></tr>
+        <tr><td>App pages</td><td>Bootstrap 5</td><td>Todas as páginas autenticadas</td></tr>
+        <tr><td>Icons</td><td>Font Awesome 6</td><td>Ícones globais via CDN</td></tr>
+        <tr><td>Alerts</td><td>SweetAlert2</td><td>Modais de confirmação e feedback</td></tr>
+      </tbody>
+    </table>
+    <div class="callout" style="margin-top:12px">
+      Evitar os termos <strong>"BI"</strong> ou <strong>"dashboard"</strong> no copy da UI.
+      Usar <strong>"inteligência"</strong> ou <strong>"inteligência organizacional"</strong>.
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 13. Env ── -->
+  <div class="section no-break">
+    <h2><span class="num">13</span> Variáveis de Ambiente</h2>
+    <table>
+      <thead><tr><th>Variável</th><th>Propósito</th></tr></thead>
+      <tbody>
+        <tr><td><code>SUPABASE_URL</code></td><td>URL do projeto Supabase</td></tr>
+        <tr><td><code>SUPABASE_KEY</code></td><td>Chave anônima do Supabase</td></tr>
+        <tr><td><code>SESSION_SECRET</code></td><td>Secret para assinar a cookie de sessão</td></tr>
+        <tr><td><code>NODE_ENV</code></td><td><code>development</code> ou <code>production</code></td></tr>
+        <tr><td><code>PORT</code></td><td>Porta do servidor (padrão: 3000)</td></tr>
+        <tr><td><code>AZURE_TENANT_ID</code></td><td>ID do tenant Azure AD</td></tr>
+        <tr><td><code>AZURE_CLIENT_ID</code></td><td>ID do Service Principal Azure</td></tr>
+        <tr><td><code>AZURE_CLIENT_SECRET</code></td><td>Secret do Service Principal Azure</td></tr>
+        <tr><td><code>POWER_BI_SCOPE</code></td><td>Scope da API Power BI</td></tr>
+        <tr><td><code>POWER_BI_AUTH_URL</code></td><td>URL base de auth Azure</td></tr>
+        <tr><td><code>POWER_BI_API_URL</code></td><td>URL base da API Power BI</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 14. Dependências ── -->
+  <div class="section no-break">
+    <h2><span class="num">14</span> Dependências</h2>
+    <table>
+      <thead><tr><th>Pacote</th><th>Versão</th><th>Propósito</th></tr></thead>
+      <tbody>
+        <tr><td>express</td><td>^5.1.0</td><td>Framework web</td></tr>
+        <tr><td>@supabase/supabase-js</td><td>^2.49.8</td><td>Cliente Supabase/PostgreSQL</td></tr>
+        <tr><td>bcrypt</td><td>^6.0.0</td><td>Hash de senhas</td></tr>
+        <tr><td>express-session</td><td>^1.18.1</td><td>Gerenciamento de sessão</td></tr>
+        <tr><td>multer</td><td>^2.0.2</td><td>Upload de arquivos</td></tr>
+        <tr><td>xlsx</td><td>^0.18.5</td><td>Parsing de planilhas Excel</td></tr>
+        <tr><td>csv-parse</td><td>^6.1.0</td><td>Parsing de arquivos CSV</td></tr>
+        <tr><td>axios</td><td>^1.13.2</td><td>HTTP client para Power BI API</td></tr>
+        <tr><td>nodemailer</td><td>^7.0.12</td><td>Envio de e-mails</td></tr>
+        <tr><td>uuid</td><td>^11.1.0</td><td>Geração de UUIDs</td></tr>
+        <tr><td>ejs</td><td>^3.1.10</td><td>Template engine</td></tr>
+        <tr><td>connect-flash</td><td>^0.1.1</td><td>Mensagens flash</td></tr>
+        <tr><td>dotenv</td><td>^16.5.0</td><td>Variáveis de ambiente</td></tr>
+        <tr><td>joi</td><td>^17.13.3</td><td>Validação de dados (instalado, não enforçado)</td></tr>
+        <tr><td>method-override</td><td>^3.0.0</td><td>PUT/DELETE via POST forms</td></tr>
+        <tr><td>pg</td><td>^8.16.0</td><td>Driver PostgreSQL direto</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ── 15. Bugs ── -->
+  <div class="section no-break">
+    <h2><span class="num">15</span> Bugs Conhecidos</h2>
+    <table>
+      <thead><tr><th>#</th><th>Arquivo</th><th>Problema</th><th>Fix</th></tr></thead>
+      <tbody class="bug-row">
+        <tr>
+          <td>1</td>
+          <td><code>services/powerBIService.js</code></td>
+          <td>Usa <code>export</code> (ES6) mas é importado com <code>require()</code> (CommonJS) — quebra em runtime</td>
+          <td>Substituir <code>export</code> por <code>module.exports</code></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><code>views/pages/register.ejs</code></td>
+          <td><code>company_id</code> hardcoded no HTML do formulário público</td>
+          <td>Tornar dinâmico ou remover do formulário público</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><code>services/inviteService.js</code></td>
+          <td>Link do convite hardcoded para <code>http://localhost:3000</code></td>
+          <td>Usar variável de ambiente <code>BASE_URL</code></td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><code>services/emailService.js</code></td>
+          <td>Usa conta de teste Nodemailer (preview URL no console)</td>
+          <td>Configurar SMTP de produção via env vars</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="doc-footer">
+    Metavis — Documentação Técnica de Arquitetura &nbsp;|&nbsp; Versão 1.0 &nbsp;|&nbsp; Abril 2026<br>
+    Para exportar como PDF: abra este arquivo no Chrome/Edge, pressione <strong>Ctrl+P</strong> e selecione <strong>"Salvar como PDF"</strong>
+  </div>
+
+</div>
+</body>
+</html>

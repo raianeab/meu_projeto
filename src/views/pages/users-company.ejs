@@ -1,0 +1,131 @@
+<%- include('../partials/header') %>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Usuários da Empresa</title>
+
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/pagesCSS/user.css">
+</head>
+
+<body class="page-users">
+
+
+
+
+  <!-- CONTEÚDO -->
+  <main class="app-content">
+
+    <h1>Usuários da empresa</h1>
+    <p class="subtitle">Gerencie acessos e permissões da sua organização</p>
+
+<% if (typeof error !== 'undefined' && error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+
+    <div class="header-actions">
+      <div class="stats">
+        Usuários ativos:
+        <strong>
+          <%= users.filter(u => u.status === 'active').length %>
+        </strong>
+        / <%= userLimit %>
+      </div>
+
+      <!-- Botão que abre o modal -->
+      <button
+        class="primary-button"
+        onclick="document.getElementById('inviteModal').style.display='flex'">
+        Convidar novo usuário
+      </button>
+    </div>
+
+    <!-- TABELA DE USUÁRIOS -->
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(user => { %>
+            <tr>
+              <td><%= user.nome_completo || '-' %></td>
+              <td><%= user.email %></td>
+              <td><%= user.role %></td>
+              <td>
+                <% if (user.status === 'active') { %>
+                  <span class="badge badge-active">Ativo</span>
+                <% } else { %>
+                  <span class="badge badge-inactive">Inativo</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (user.id !== currentUser.id) { %>
+                  <% if (user.status === 'active') { %>
+                    <form method="POST" action="/usuarios/<%= user.id %>/desativar">
+                      <button class="action-button danger" type="submit">
+                        Desativar
+                      </button>
+                    </form>
+                  <% } else { %>
+                    <form method="POST" action="/usuarios/<%= user.id %>/ativar">
+                      <button class="action-button" type="submit">
+                        Ativar
+                      </button>
+                    </form>
+                  <% } %>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- MODAL DE CONVITE (POP-UP) -->
+  <div id="inviteModal" class="modal-overlay" onclick="if(event.target == this) this.style.display='none'">
+    <div class="modal-content">
+      <h3>Convidar usuário</h3>
+      <p class="subtitle">Envie um convite por e-mail para um novo membro.</p>
+
+      <form method="POST" action="/usuarios/convidar">
+        <input
+          type="email"
+          name="email"
+          placeholder="email@empresa.com"
+          required
+        />
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-button" onclick="document.getElementById('inviteModal').style.display='none'">
+            Cancelar
+          </button>
+          <button type="submit" class="primary-button">
+            Enviar convite
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    © <%= new Date().getFullYear() %> Metavis
+  </footer>
+
+</body>
+</html>
+
+<%- include('../partials/footer') %>
+

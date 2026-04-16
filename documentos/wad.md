@@ -80,9 +80,6 @@ Armazena os dados de emissão de certificados para participantes confirmados.
 
 - Relação 1:1 com **inscricao**: garante que apenas uma certificação é emitida por inscrição.
 
-**feedback_evento**  
-Registra a avaliação de um evento feita por um usuário.
-
 - Relação N:1 com **usuario** e com **evento**.
 
 **categoria**  
@@ -98,52 +95,6 @@ Tabela intermediária que implementa a relação N:N entre **evento** e **catego
 
 
 ### [Modelo Físico](../scripts/init.sql)
-
-
-### 3.1.1 BD e Models (Semana 5)
-
-### 3.1.1 Models
-
-O sistema implementa uma arquitetura baseada em Models para organizar e gerenciar as principais entidades e relacionamentos da aplicação. Esse modelo facilita a manutenção do sistema, promove separação de responsabilidades e torna a estrutura da aplicação mais clara e escalável.
-
- Cada model representa uma tabela no banco de dados e encapsula a lógica necessária para realizar operações de leitura e escrita.
-Os seguintes Models para gerenciamento de dados foram implementados:
-
-1. **Users (Usuários)**
-   - Gerencia informações dos usuários do sistema
-   - Atributos: id, nome_completo, tipo_usuario, data_criacao
-   - Métodos: create, findAll, findById, update, delete
-
-2. **Categories (Categorias)**
-   - Gerencia as categorias de eventos
-   - Atributos: id, nome_categoria, descricao
-   - Métodos: create, findAll
-
-3. **Events (Eventos)**
-   - Gerencia os eventos do sistema
-   - Atributos: id, titulo, descricao, local, data_inicio, data_fim, tipo_evento, vagas_disponiveis, publico_alvo, status, data_criacao, id_organizador
-   - Métodos: create, findAll
-
-4. **Inscriptions (Inscrições)**
-   - Gerencia as inscrições em eventos
-   - Atributos: id, id_evento, id_usuario, data_inscricao, status, certificado_emitido
-   - Métodos: create, findAll
-
-5. **Certificates (Certificados)**
-   - Gerencia os certificados emitidos
-   - Atributos: id, id_inscricao, caminho_arquivo, data_emissao
-   - Métodos: create, findAll
-
-6. **EventCategories (Categorias de Eventos)**
-   - Gerencia a relação entre eventos e categorias
-   - Atributos: id, id_evento, id_categoria
-   - Métodos: create, findAll
-
-7. **EventFeedbacks (Feedbacks de Eventos)**
-   - Gerencia os feedbacks dos participantes sobre os eventos
-   - Atributos: id, id_evento, id_usuario, avaliacao, comentario
-   - Métodos: create, findAll
-
 
 ### 3.2. Arquitetura (Semana 5)
 
@@ -193,7 +144,7 @@ O desenvolvimento do frontend do sistema foi realizado utilizando EJS (Embedded 
 src/
 ├── views/
 │   ├── pages/
-│   │   ├── events.ejs
+│   │   ├── .ejs
 │   │   ├── users.ejs
 │   │   ├── inscriptions.ejs
 │   │   └── categories.ejs

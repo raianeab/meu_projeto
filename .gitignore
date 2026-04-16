@@ -8,3 +8,6 @@ migrations
 
 # Logs
 logs
+
+# Uploads temporários
+src/uploads

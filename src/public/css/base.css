@@ -1,0 +1,135 @@
+/* ===== AEONIK PRO FONT FACE ===== */
+@font-face {
+  font-family: 'Aeonik Pro';
+  src: url('/fonts/aeonik/AeonikPro-Regular.ttf') format('truetype'),
+       url('/fonts/aeonik/AeonikPro-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonik Pro';
+  src: url('/fonts/aeonik/AeonikPro-RegularItalic.ttf') format('truetype'),
+       url('/fonts/aeonik/AeonikPro-RegularItalic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonik Pro';
+  src: url('/fonts/aeonik/AeonikPro-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonik Pro';
+  src: url('/fonts/aeonik/AeonikPro-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonik Pro';
+  src: url('/fonts/aeonik/AeonikPro-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonik Pro';
+  src: url('/fonts/aeonik/AeonikPro-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ===== VARIÁVEIS GLOBAIS ===== */
+:root {
+  /* Primary */
+  --azul-petroleo:      #01192B;
+  --laranja-energetico: #EE6D07;
+  /* Secondary */
+  --cinza-claro:        #E3E3E3;
+  --cinza-medio:        #A5B3BB;
+  --marrom-terroso:     #8A5A2B;
+  --verde-floresta:     #1B4B3A;
+  --preto-carvao:       #000000;
+  /* Utility */
+  --branco:             #FFFFFF;
+  --cinza-fundo:        #F4F6F8;
+}
+
+/* ===== RESET E BASE ===== */
+* {
+  box-sizing: border-box;
+  font-family: 'Aeonik Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--cinza-fundo);
+  color: var(--preto-carvao);
+}
+
+/* ===== ESTILIZAÇÃO DO HEADER (NAVBAR) ===== */
+.navbar {
+  background-color: var(--azul-petroleo) !important;
+  padding: 16px 0;
+  box-shadow: 0 1px 16px rgba(0, 0, 0, 0.25);
+  min-height: 64px;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--branco) !important;
+  font-size: 1.5rem;
+}
+
+.navbar-brand span {
+  color: var(--laranja-energetico);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 500;
+  padding: 8px 16px !important;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+}
+
+.nav-link i {
+  font-size: 1.1rem;
+  color: var(--laranja-energetico);
+}
+
+.nav-link:hover {
+  color: var(--branco) !important;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+  color: var(--branco) !important;
+  background-color: rgba(255, 107, 0, 0.15);
+}
+
+/* Estilo especial para o botão de Sair */
+.nav-link.logout-link:hover {
+  background-color: rgba(255, 0, 0, 0.1);
+  color: #ff4d4d !important;
+}
+
+/* ===== CONTAINER PRINCIPAL ===== */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}

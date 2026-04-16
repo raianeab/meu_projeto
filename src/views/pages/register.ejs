@@ -30,11 +30,15 @@
                             <label for="confirmar_senha" class="form-label">Confirmar Senha</label>
                             <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required minlength="6">
                         </div>
+
+                            <input type="hidden" name="company_id" value="ab28b61c-af05-49c5-9d7a-0a76ad62ccfc">
+
                         <div class="mb-3">
+                            
                             <label for="tipo_usuario" class="form-label">Tipo de Usuário</label>
                             <select class="form-select" id="tipo_usuario" name="tipo_usuario" required>
-                                <option value="participante">Participante</option>
-                                <option value="organizador">Organizador</option>
+                                <option value="user">Usuário</option>
+                                <option value="admin">Administrador</option>
                             </select>
                         </div>
                         <div class="d-grid gap-2">

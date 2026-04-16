@@ -1,0 +1,139 @@
+/* ===========================
+   COMPONENTES GERAIS
+   =========================== */
+
+/* ===== CARTÕES ===== */
+.card {
+  background: var(--branco);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== TABELAS ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+th {
+  background: var(--azul-petroleo);
+  color: var(--branco);
+  padding: 12px;
+  font-size: 14px;
+  text-align: left;
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid #E5E7EB;
+  font-size: 14px;
+}
+
+tr:hover {
+  background: #F9FAFB;
+}
+
+/* ===== BADGES ===== */
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-active {
+  background: rgba(31, 122, 99, 0.15);
+  color: var(--verde-floresta);
+}
+
+.badge-inactive {
+  background: rgba(156, 163, 175, 0.2);
+  color: var(--cinza-medio);
+}
+
+/* ===========================
+   BOTÕES
+   =========================== */
+button.primary-button {
+  background: var(--laranja-energetico);
+  color: var(--branco);
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+
+
+.primary-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.secondary-button {
+  background: transparent;
+  border: none;
+  color: var(--cinza-medio);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.secondary-button:hover {
+  color: var(--preto-carvao);
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none; /* ativado via JS */
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--branco);
+  padding: 32px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.modal h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 20px;
+}
+
+.modal input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #D1D5DB;
+  margin-bottom: 20px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.modal input:focus {
+  outline: none;
+  border-color: var(--azul-petroleo);
+}
+
+/* ===== AÇÕES DO MODAL ===== */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}

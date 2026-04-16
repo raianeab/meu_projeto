@@ -1,0 +1,301 @@
+<%- include('../partials/header') %>
+
+<script src="https://cdn.jsdelivr.net/npm/powerbi-client/dist/powerbi.min.js"></script>
+
+<% if (embedUrl && embedToken && reportId) { %>
+
+<style>
+  /* Reset para página de dashboard */
+  body {
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  .page-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .dashboard-card {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard-card-body {
+    padding: 0 !important;
+    margin: 0 !important;
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Wrapper do relatório: ocupa tela abaixo do navbar */
+  #reportWrapper {
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  /* Container do Power BI */
+  #reportContainer {
+    flex: 1;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #reportContainer iframe {
+    width: 100% !important;
+    height: 100% !important;
+    border: none;
+    display: block;
+  }
+
+  /* ===== SIDEBAR DE NAVEGAÇÃO ===== */
+  #pageSidebar {
+    width: 250px;
+    flex-shrink: 0;
+    background: #01192B;
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-header {
+    padding: 18px 20px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+  }
+
+  .sidebar-pages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 0;
+  }
+
+  .sidebar-pages::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .sidebar-pages::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .sidebar-pages::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+
+  .sidebar-page-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 20px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    font-weight: 400;
+    border-right: 3px solid transparent;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    line-height: 1.4;
+    user-select: none;
+  }
+
+  .sidebar-page-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .sidebar-page-item.active {
+    color: #EE6D07;
+    border-right-color: #EE6D07;
+    background: rgba(238, 109, 7, 0.09);
+    font-weight: 500;
+  }
+
+  .sidebar-page-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: opacity 0.18s;
+  }
+
+  .sidebar-page-item.active .sidebar-page-dot {
+    opacity: 1;
+  }
+
+  .sidebar-loading {
+    padding: 20px 18px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.25);
+    text-align: center;
+  }
+
+  /* Remove footer na página de dashboard */
+  footer {
+    display: none;
+  }
+</style>
+
+<div class="dashboard-card">
+  <div class="dashboard-card-body">
+    <div id="reportWrapper">
+      <div id="pageSidebar">
+        <div class="sidebar-header">Páginas</div>
+        <div class="sidebar-pages">
+          <div class="sidebar-loading">Carregando…</div>
+        </div>
+      </div>
+      <div id="reportContainer"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const models = window['powerbi-client'].models;
+
+  function getNavbarHeight() {
+    const navbar = document.querySelector('.navbar');
+    return navbar ? navbar.offsetHeight : 56;
+  }
+
+  function adjustReportWrapper() {
+    const wrapper = document.getElementById('reportWrapper');
+    const navbarHeight = getNavbarHeight();
+    if (wrapper) {
+      wrapper.style.top = navbarHeight + 'px';
+      wrapper.style.height = 'calc(100vh - ' + navbarHeight + 'px)';
+    }
+  }
+
+  const embedConfig = {
+    type: 'report',
+    id: '<%= reportId %>',
+    embedUrl: '<%= embedUrl %>',
+    accessToken: '<%= embedToken %>',
+    tokenType: models.TokenType.Embed,
+
+    settings: {
+      layoutType: models.LayoutType.Custom,
+      customLayout: {
+        displayOption: models.DisplayOption.FitToPage
+      },
+
+      panes: {
+        filters: { visible: false },
+        pageNavigation: { visible: false }   /* sidebar customizada substitui */
+      },
+
+      bars: {
+        actionBar: { visible: false }
+      },
+
+      background: models.BackgroundType.Transparent,
+      viewMode: models.ViewMode.View
+    }
+  };
+
+  const container = document.getElementById('reportContainer');
+
+  adjustReportWrapper();
+
+  powerbi.reset(container);
+  const report = powerbi.embed(container, embedConfig);
+
+  /* ===== Popula a sidebar com as páginas do relatório ===== */
+  report.on('loaded', function () {
+    adjustReportWrapper();
+
+    report.updateSettings({
+      layoutType: models.LayoutType.Custom,
+      customLayout: { displayOption: models.DisplayOption.FitToPage }
+    });
+
+    report.getPages().then(function (pages) {
+      /* Filtra apenas páginas visíveis (visibility 0 = Always) */
+      const visiblePages = pages.filter(function (p) {
+        return p.visibility === 0;
+      });
+
+      const sidebarPages = document.querySelector('#pageSidebar .sidebar-pages');
+      sidebarPages.innerHTML = '';
+
+      if (visiblePages.length === 0) {
+        sidebarPages.innerHTML = '<div class="sidebar-loading">Sem páginas</div>';
+        return;
+      }
+
+      visiblePages.forEach(function (page) {
+        const item = document.createElement('div');
+        item.className = 'sidebar-page-item' + (page.isActive ? ' active' : '');
+        item.dataset.pageName = page.name;
+        item.innerHTML =
+          '<span class="sidebar-page-dot"></span>' +
+          '<span>' + page.displayName + '</span>';
+
+        item.addEventListener('click', function () {
+          report.setPage(page.name).catch(function (err) {
+            console.warn('setPage error:', err);
+          });
+        });
+
+        sidebarPages.appendChild(item);
+      });
+
+    }).catch(function (err) {
+      console.error('Erro ao obter páginas:', err);
+      document.querySelector('#pageSidebar .sidebar-pages').innerHTML =
+        '<div class="sidebar-loading">Erro ao carregar</div>';
+    });
+  });
+
+  /* Sincroniza o item ativo quando o Power BI muda de página */
+  report.on('pageChanged', function (event) {
+    const pageName = event.detail.newPage.name;
+    document.querySelectorAll('.sidebar-page-item').forEach(function (el) {
+      el.classList.toggle('active', el.dataset.pageName === pageName);
+    });
+  });
+
+  /* Ajusta dimensões ao redimensionar janela */
+  let resizeTimeout;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function () {
+      adjustReportWrapper();
+      report.updateSettings({
+        layoutType: models.LayoutType.Custom,
+        customLayout: { displayOption: models.DisplayOption.FitToPage }
+      });
+    }, 250);
+  });
+</script>
+
+<% } else { %>
+  <div class="alert alert-warning m-4">
+    Dashboard ainda não configurado para esta empresa.
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>

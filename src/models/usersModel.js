@@ -7,7 +7,7 @@ class Users {
       email: Joi.string().email().allow('').optional(),
       senha: Joi.string().min(6).required(),
       telefone: Joi.string().allow('').optional(),
-      tipo_usuario: Joi.string().valid('admin', 'organizador', 'participante').required()
+      tipo_usuario: Joi.string().valid('admin', 'user').required()
     });
   }
 }

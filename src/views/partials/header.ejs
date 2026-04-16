@@ -1,97 +1,84 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Eventos</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
-    
-    <style>
-        .navbar-brand {
-            font-weight: bold;
-        }
-        .card {
-            transition: transform 0.2s;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .table th {
-            background-color: #f8f9fa;
-        }
-        .badge {
-            font-size: 0.85em;
-            padding: 0.5em 0.8em;
-        }
-        .btn-group .btn {
-            padding: 0.25rem 0.5rem;
-        }
-        .modal-header {
-            border-bottom: none;
-        }
-        .modal-footer {
-            border-top: none;
-        }
-        .breadcrumb {
-            background-color: transparent;
-            padding: 0.75rem 0;
-        }
-        .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid rgba(0,0,0,.125);
-        }
-    </style>
-</head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">Sistema de Eventos</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">
-                            <i class="fas fa-home"></i>
-                            <span>Início</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/events">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Eventos</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/users">
-                            <i class="fas fa-users"></i>
-                            <span>Usuários</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/inscriptions/list">
-                            <i class="fas fa-clipboard-list"></i>
-                            <span>Inscrições</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/event-feedbacks">
-                            <i class="fas fa-comment-alt"></i>
-                            <span>Feedbacks</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+  <meta charset="UTF-8">
+  <title>Metavis · Inteligência Organizacional</title>
 
-    <main class="py-4">
-        <div class="container-fluid px-4">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Base CSS (inclui Aeonik Pro font-face e variáveis) -->
+  <link rel="stylesheet" href="/css/base.css">
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="/dashboard" style="padding: 0 0.5rem;">
+      <img src="/images/logos/Metavis%20-%20Logotipo%20-%20Branco.png"
+           alt="Metavis"
+           style="height: 30px; object-fit: contain;"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+      <span style="display:none; font-weight:700; letter-spacing:0.5px; color:#fff; font-size:1.4rem;">Metavis<span style="color:var(--laranja-energetico);">.</span></span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+
+        <li class="nav-item">
+          <a class="nav-link" href="/dashboard">
+            <i class="fas fa-chart-line"></i>
+            Inteligência
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/usuarios">
+            <i class="fas fa-users"></i>
+            Usuários
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/convites">
+            <i class="fas fa-envelope-open-text"></i>
+            Convites
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/dados">
+            <i class="fas fa-file-upload"></i>
+            Inserir Dados
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link logout-link" href="/auth/logout">
+            <i class="fas fa-sign-out-alt"></i>
+            Sair
+          </a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="page-container">
+  <!-- Conteúdo da página aqui -->
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

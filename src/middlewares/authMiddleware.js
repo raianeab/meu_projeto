@@ -1,26 +1,46 @@
 const authMiddleware = {
+
+    // Usuário logado
     isAuthenticated(req, res, next) {
-        if (req.session.user) {
+        if (req.session && req.session.user) {
             return next();
         }
-        res.redirect('/auth/login');
+
+        return res.redirect('/auth/login');
     },
 
+    // Apenas ADMIN
     isAdmin(req, res, next) {
-        if (req.session.user && req.session.user.tipo_usuario === 'admin') {
+        if (
+            req.session &&
+            req.session.user &&
+            req.session.user.role === 'admin'
+        ) {
             return next();
         }
-        res.status(403).json({ error: 'Acesso negado' });
+
+        return res.status(403).render('pages/error', {
+            message: 'Acesso negado',
+            error: { status: 403 }
+        });
     },
 
+    // ADMIN ou ORGANIZADOR
     isOrganizer(req, res, next) {
-        if (req.session.user && 
-            (req.session.user.tipo_usuario === 'admin' || 
-             req.session.user.tipo_usuario === 'organizador')) {
+        if (
+            req.session &&
+            req.session.user &&
+            ['admin', 'organizador'].includes(req.session.user.role)
+        ) {
             return next();
         }
-        res.status(403).json({ error: 'Acesso negado' });
+
+        return res.status(403).render('pages/error', {
+            message: 'Acesso negado',
+            error: { status: 403 }
+        });
     }
+
 };
 
-module.exports = authMiddleware; 
+module.exports = authMiddleware;
