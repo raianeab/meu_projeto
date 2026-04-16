@@ -12,9 +12,6 @@ const dashboardController = {
 
     const dashboard = await getDashboardByCompany(companyId);
 
-    console.log('=== DASHBOARD RAW ===');
-    console.log(dashboard);
-
     if (!dashboard) {
       return res.status(403).render('pages/error', {
         message: 'Dashboard não disponível para esta empresa',
@@ -25,12 +22,6 @@ const dashboardController = {
     let embedUrl = null;
     let embedToken = null;
     let reportId = null;
-
-    console.log('=== POWER BI CONFIG ===');
-    console.log({
-      workspaceId: dashboard.power_bi_workspace_id,
-      reportId: dashboard.power_bi_report_id
-    });
 
     if (
       dashboard.power_bi_workspace_id &&
@@ -48,13 +39,6 @@ const dashboardController = {
         reportId
       });
     }
-
-    console.log('=== EMBED DATA ===');
-    console.log({
-      embedUrl,
-      embedToken: embedToken ? 'OK' : null,
-      reportId
-    });
 
     res.render('pages/dashboard', {
       company: dashboard,

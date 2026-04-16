@@ -6,10 +6,7 @@ const inviteController = require('../controllers/inviteController');
 // router.get('/convite/:token', inviteController.showAcceptInvite);
 
 
-router.get('/convite/:token', (req, res, next) => {
-    console.log('ROTA DE CONVITE ACESSADA');
-    next();
-}, inviteController.showAcceptInvite);
+router.get('/convite/:token', inviteController.showAcceptInvite);
 
 
 // enviar nome + senha

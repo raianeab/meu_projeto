@@ -1,15 +1,19 @@
 const { createClient } = require('@supabase/supabase-js');
 
-// Usa service-role key para bypassar RLS nas inserções de leads (tabela pública)
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+let _client;
+function getClient() {
+  if (!_client) {
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY não configurada');
+    _client = createClient(process.env.SUPABASE_URL, key);
+  }
+  return _client;
+}
 
 const leadsRepository = {
 
   async create({ nome, nome_empresa, email }) {
-    const { data, error } = await supabase
+    const { data, error } = await getClient()
       .from('leads')
       .insert([{ nome, nome_empresa, email }])
       .select()
@@ -20,7 +24,7 @@ const leadsRepository = {
   },
 
   async findByEmail(email) {
-    const { data, error } = await supabase
+    const { data, error } = await getClient()
       .from('leads')
       .select('id, email')
       .eq('email', email)
@@ -31,7 +35,7 @@ const leadsRepository = {
   },
 
   async findAll() {
-    const { data, error } = await supabase
+    const { data, error } = await getClient()
       .from('leads')
       .select('*')
       .order('created_at', { ascending: false });

@@ -19,6 +19,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Middleware para arquivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -91,6 +92,11 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
   console.error('Erro:', err);
+  if (req.path.startsWith('/api/')) {
+    const status = err.status || 500;
+    const message = status < 500 ? err.message : 'Erro interno do servidor';
+    return res.status(status).json({ error: message });
+  }
   res.status(500).render('pages/error', {
     message: 'Erro interno do servidor',
     error: process.env.NODE_ENV === 'development' ? err : {}
