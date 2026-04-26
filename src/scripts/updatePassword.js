@@ -1,5 +1,5 @@
 require('dotenv').config();
-const supabase = require('../config/db');
+const { supabase } = require('../config/db');
 const bcrypt = require('bcrypt');
 
 async function updatePassword(email, newPassword) {

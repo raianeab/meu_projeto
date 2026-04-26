@@ -8,9 +8,8 @@ const dashboardController = {
     async index(req, res) {
   try {
     const user = req.session.user;
-    const companyId = user.company_id;
 
-    const dashboard = await getDashboardByCompany(companyId);
+    const dashboard = await getDashboardByCompany(user);
 
     if (!dashboard) {
       return res.status(403).render('pages/error', {

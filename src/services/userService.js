@@ -1,88 +1,74 @@
-const supabase = require('../config/db');
+const { pool, withTenantContext } = require('../config/db');
 
-async function listUsersByCompany(companyId) {
-    const { data, error } = await supabase
-        .from('usuarios')
-        .select('id, nome_completo, email, role, status, created_at')
-        .eq('company_id', companyId)
-        .order('created_at', { ascending: true });
-
-    if (error) throw error;
-    return data;
+async function listUsersByCompany(session) {
+    return withTenantContext(session, async (client) => {
+        const { rows } = await client.query(
+            'SELECT id, nome_completo, email, role, status, created_at FROM usuarios ORDER BY created_at ASC'
+        );
+        return rows;
+    });
 }
 
-async function countActiveUsers(companyId) {
-    const { count, error } = await supabase
-        .from('usuarios')
-        .select('*', { count: 'exact', head: true })
-        .eq('company_id', companyId)
-        .eq('status', 'active');
-
-    if (error) throw error;
-    return count;
+async function countActiveUsers(session) {
+    return withTenantContext(session, async (client) => {
+        const { rows } = await client.query(
+            "SELECT COUNT(*)::int AS count FROM usuarios WHERE status = 'active'"
+        );
+        return rows[0].count;
+    });
 }
 
-async function getCompanyUserLimit(companyId) {
-    const { data, error } = await supabase
-        .from('companies')
-        .select('user_limit')
-        .eq('id', companyId)
-        .single();
-
-    if (error) throw error;
-    return data.user_limit;
+async function getCompanyUserLimit(session) {
+    return withTenantContext(session, async (client) => {
+        const { rows } = await client.query(
+            'SELECT user_limit FROM companies WHERE id = $1',
+            [session.company_id]
+        );
+        return rows[0].user_limit;
+    });
 }
 
-async function updateUserStatus(userId, status) {
-    const { error } = await supabase
-        .from('usuarios')
-        .update({ status })
-        .eq('id', userId);
-
-    if (error) throw error;
+async function updateUserStatus(session, userId, status) {
+    return withTenantContext(session, async (client) => {
+        await client.query(
+            'UPDATE usuarios SET status = $1 WHERE id = $2',
+            [status, userId]
+        );
+    });
 }
 
-async function countAdmins(companyId) {
-    const { count } = await supabase
-        .from('usuarios')
-        .select('*', { count: 'exact', head: true })
-        .eq('company_id', companyId)
-        .eq('role', 'admin')
-        .eq('status', 'active');
-
-    return count;
+async function countAdmins(session) {
+    return withTenantContext(session, async (client) => {
+        const { rows } = await client.query(
+            "SELECT COUNT(*)::int AS count FROM usuarios WHERE role = 'admin' AND status = 'active'"
+        );
+        return rows[0].count;
+    });
 }
 
-
-async function getUserById(userId) {
-    const { data, error } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-    if (error) return null;
-    return data;
+async function getUserById(session, userId) {
+    return withTenantContext(session, async (client) => {
+        const { rows } = await client.query(
+            'SELECT * FROM usuarios WHERE id = $1',
+            [userId]
+        );
+        return rows[0] || null;
+    });
 }
 
 async function getUserByEmail(email) {
-    const { data, error } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('email', email)
-        .single();
-
-    if (error) return null;
-    return data;
+    const { rows } = await pool.query(
+        'SELECT * FROM usuarios WHERE email = $1',
+        [email]
+    );
+    return rows[0] || null;
 }
 
 async function updatePassword(email, passwordHash) {
-    const { error } = await supabase
-        .from('usuarios')
-        .update({ senha: passwordHash })
-        .eq('email', email);
-
-    if (error) throw error;
+    await pool.query(
+        'UPDATE usuarios SET senha = $1 WHERE email = $2',
+        [passwordHash, email]
+    );
 }
 
 module.exports = {

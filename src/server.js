@@ -3,7 +3,7 @@ const express = require("express");
 const path = require('path'); // para lidar com caminhos de arquivos
 const session = require('express-session');
 const flash = require('connect-flash');
-const supabase = require('./config/db');
+const { supabase } = require('./config/db');
 const app = express();
 const authRoutes = require('./routes/authRoutes');
 

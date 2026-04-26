@@ -1,5 +1,5 @@
 const { processUploadFile, convertTypes } = require('../services/dataService');
-const supabase = require('../config/db');
+const { supabase } = require('../config/db');
 
 const BATCH_SIZE = 100;
 

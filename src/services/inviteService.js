@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const supabase = require('../config/db');
+const { supabase } = require('../config/db');
 
 function generateToken() {
     return crypto.randomBytes(32).toString('hex');

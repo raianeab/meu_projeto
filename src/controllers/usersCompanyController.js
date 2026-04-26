@@ -5,12 +5,10 @@ const usersCompanyController = {
 
     async index(req, res) {
         try {
-            const companyId = req.session.user.company_id;
-    
-            const users = await userService.listUsersByCompany(companyId);
-            const userLimit = await userService.getCompanyUserLimit(companyId); // 👈 ESTAVA FALTANDO
-            const adminCount = await userService.countAdmins(companyId);
-    
+            const users = await userService.listUsersByCompany(req.session.user);
+            const userLimit = await userService.getCompanyUserLimit(req.session.user);
+            const adminCount = await userService.countAdmins(req.session.user);
+
             res.render('pages/users-company', {
                 users,
                 userLimit,
@@ -18,30 +16,28 @@ const usersCompanyController = {
                 currentUser: req.session.user,
                 error: null
             });
-    
+
         } catch (err) {
             console.error(err);
             res.status(500).send('Erro ao carregar usuários');
         }
     },
-    
 
-    // Convida usuário (gera token + envia email)
     async invite(req, res) {
         try {
             const { email } = req.body;
             const companyId = req.session.user.company_id;
 
-            const activeCount = await userService.countActiveUsers(companyId);
-            const limit = await userService.getCompanyUserLimit(companyId);
+            const activeCount = await userService.countActiveUsers(req.session.user);
+            const limit = await userService.getCompanyUserLimit(req.session.user);
 
             if (activeCount >= limit) {
-                const users = await userService.listUsersByCompany(companyId);
-                const adminCount = await userService.countAdmins(companyId);
+                const users = await userService.listUsersByCompany(req.session.user);
+                const adminCount = await userService.countAdmins(req.session.user);
 
                 return res.render('pages/users-company', {
                     users,
-                    userLimit: limit,  
+                    userLimit: limit,
                     adminCount,
                     currentUser: req.session.user,
                     error: 'Limite de usuários atingido'
@@ -58,19 +54,17 @@ const usersCompanyController = {
         }
     },
 
-    // Desativa usuário
     async deactivate(req, res) {
         try {
             const { id } = req.params;
             const companyId = req.session.user.company_id;
             const currentUserId = req.session.user.id;
 
-            const user = await userService.getUserById(id);
+            const user = await userService.getUserById(req.session.user, id);
 
-            // Não permitir desativar a si mesmo
             if (id === currentUserId) {
-                const users = await userService.listUsersByCompany(companyId);
-                const adminCount = await userService.countAdmins(companyId);
+                const users = await userService.listUsersByCompany(req.session.user);
+                const adminCount = await userService.countAdmins(req.session.user);
 
                 return res.render('pages/users-company', {
                     users,
@@ -80,12 +74,11 @@ const usersCompanyController = {
                 });
             }
 
-            // Não permitir desativar o último admin
             if (user.role === 'admin') {
-                const adminCount = await userService.countAdmins(companyId);
+                const adminCount = await userService.countAdmins(req.session.user);
 
                 if (adminCount <= 1) {
-                    const users = await userService.listUsersByCompany(companyId);
+                    const users = await userService.listUsersByCompany(req.session.user);
 
                     return res.render('pages/users-company', {
                         users,
@@ -96,7 +89,7 @@ const usersCompanyController = {
                 }
             }
 
-            await userService.updateUserStatus(id, 'inactive');
+            await userService.updateUserStatus(req.session.user, id, 'inactive');
             res.redirect('/usuarios');
         } catch (err) {
             console.error(err);
@@ -108,23 +101,21 @@ const usersCompanyController = {
         try {
             const { id } = req.params;
             const companyId = req.session.user.company_id;
-    
-            const user = await userService.getUserById(id);
-    
+
+            const user = await userService.getUserById(req.session.user, id);
+
             if (!user || user.company_id !== companyId) {
                 return res.status(403).send('Acesso negado');
             }
-    
-            await userService.updateUserStatus(id, 'active');
-    
+
+            await userService.updateUserStatus(req.session.user, id, 'active');
+
             res.redirect('/usuarios');
         } catch (err) {
             console.error(err);
             res.status(500).send('Erro ao ativar usuário');
         }
     }
-    
-
 
 };
 

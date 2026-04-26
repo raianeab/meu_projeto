@@ -1,30 +1,45 @@
+const { Pool } = require('pg');
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
+// Mantém só pra leads (fluxo público da landing)
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+);
 
-if (!supabaseUrl || !supabaseKey) {
-    console.error('Erro: SUPABASE_URL e SUPABASE_KEY são necessários no arquivo .env');
-    process.exit(1);
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-    }
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
 });
 
-supabase.from('eventos').select('count').limit(1)
-    .then(({ data, error }) => {
-        if (error) {
-            console.error('Erro ao conectar com o Supabase:', error);
-        }
-    })
-    .catch(error => {
-        console.error('Erro ao inicializar o Supabase:', error);
-    });
+function assertTenantContext(session) {
+  if (!session?.company_id) throw new Error('Tenant context missing — company_id ausente na sessão');
+  if (!session?.id) throw new Error('Tenant context missing — user id ausente na sessão');
+}
 
-module.exports = supabase;
+async function withTenantContext(session, callback) {
+  assertTenantContext(session);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query(
+      `SELECT
+        set_config('app.current_company_id', $1, true),
+        set_config('app.current_user_id',    $2, true)`,
+      [session.company_id.toString(), session.id.toString()]
+    );
+    const result = await callback(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+module.exports = { supabase, pool, withTenantContext };

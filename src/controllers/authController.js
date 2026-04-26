@@ -1,20 +1,24 @@
-const supabase = require('../config/db');
+const { supabase, pool } = require('../config/db');
 const bcrypt = require('bcrypt');
 const userService = require('../services/userService');
 const inviteService = require('../services/inviteService');
 
 const authController = {
     async login(req, res) {
+        const client = await pool.connect();
         try {
             const { email, senha } = req.body;
 
-            const { data: user, error } = await supabase
-                .from('usuarios')
-                .select('*')
-                .eq('email', email)
-                .single();
+            await client.query('BEGIN');
+            await client.query(`SELECT set_config('app.login_mode', 'true', true)`);
+            const { rows } = await client.query(
+                'SELECT * FROM usuarios WHERE email = $1',
+                [email]
+            );
+            await client.query('COMMIT');
+            const user = rows[0];
 
-            if (error || !user) {
+            if (!user) {
                 return res.render('pages/login', {
                     error: 'Email ou senha inválidos'
                 });
@@ -38,11 +42,14 @@ const authController = {
             
             return res.redirect('/dashboard');
 
-        } catch (error) {
-            console.error('Erro ao fazer login:', error);
+        } catch (err) {
+            await client.query('ROLLBACK');
+            console.error('Erro ao fazer login:', err);
             return res.render('pages/login', {
                 error: 'Erro interno do servidor'
             });
+        } finally {
+            client.release();
         }
     },
 
