@@ -1,0 +1,76 @@
+.page-invites h1 {
+  font-size: 32px;
+  margin-bottom: 0;
+}
+
+.page-invites .subtitle {
+  color: var(--cinza-medio);
+  margin-bottom: 24px;
+}
+
+.page-invites .card {
+  background: var(--branco);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  margin-bottom: 10px;
+}
+
+.page-invites table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.page-invites thead th {
+  background: var(--azul-petroleo);
+  color: var(--branco);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 14px 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-align: left;
+}
+
+.page-invites tbody td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #E5E7EB;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.page-invites tbody tr:hover {
+  background: #F9FAFB;
+}
+
+.page-invites .badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+
+.page-invites .badge-done {
+  background: rgba(31, 122, 99, 0.15);
+  color: var(--verde-floresta);
+}
+
+.page-invites .badge-pending {
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--azul-petroleo);
+}
+
+.page-invites .badge-expired {
+  background: rgba(156, 163, 175, 0.2);
+  color: var(--cinza-medio);
+}
+
+.page-invites .empty-state {
+  color: var(--cinza-medio);
+  text-align: center;
+  padding: 48px 0;
+  font-size: 15px;
+}

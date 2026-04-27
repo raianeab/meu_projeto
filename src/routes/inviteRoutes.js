@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const inviteController = require('../controllers/inviteController');
+const authMiddleware = require('../middlewares/authMiddleware');
+
+router.get('/convites', authMiddleware.isAuthenticated, authMiddleware.isAdmin, inviteController.showInvites);
 
 // abrir página de aceite de convite
 // router.get('/convite/:token', inviteController.showAcceptInvite);

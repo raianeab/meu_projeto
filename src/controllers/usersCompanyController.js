@@ -44,7 +44,7 @@ const usersCompanyController = {
                 });
             }
 
-            const token = await inviteService.createInvite(email, companyId);
+            const token = await inviteService.createInvite(req.session.user, email, companyId);
             await inviteService.sendInviteEmail(email, token);
 
             return res.redirect('/usuarios');

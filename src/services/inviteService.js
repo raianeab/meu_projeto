@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { supabase } = require('../config/db');
+const { pool, withTenantContext } = require('../config/db');
 
 function generateToken() {
     return crypto.randomBytes(32).toString('hex');
@@ -8,21 +8,17 @@ function generateToken() {
 /**
  * Cria um convite (usuário ainda NÃO existe)
  */
-async function createInvite(email, companyId, type = 'invite') {
+async function createInvite(session, email, companyId, type = 'invite') {
     const token = generateToken();
-    const expiresAt = new Date(Date.now() + 1000 * 60 * 60); // 1h
+    const expiresAt = new Date(Date.now() + 1000 * 60 * 60);
 
-    const { error } = await supabase
-        .from('user_invites')
-        .insert([{
-            email,
-            company_id: companyId,
-            token,
-            expires_at: expiresAt,
-            type
-        }]);
-
-    if (error) throw error;
+    await withTenantContext(session, async (client) => {
+        await client.query(
+            `INSERT INTO user_invites (email, company_id, token, expires_at, type)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [email, companyId, token, expiresAt, type]
+        );
+    });
 
     return token;
 }
@@ -32,46 +28,34 @@ async function createInvite(email, companyId, type = 'invite') {
  * Valida convite (token válido, não usado e não expirado)
  */
 async function getInviteByToken(token) {
-    const { data, error } = await supabase
-        .from('user_invites')
-        .select('*')
-        .eq('token', token)
-        .eq('used', false)
-        .gt('expires_at', new Date().toISOString())
-        .single();
-
-    if (error) return null;
-    return data;
+    const { rows } = await pool.query(
+        `SELECT * FROM user_invites
+         WHERE token = $1 AND used = false AND expires_at > NOW()
+         LIMIT 1`,
+        [token]
+    );
+    return rows[0] ?? null;
 }
 
 /**
  * Marca convite como usado (NÃO deletar, auditoria)
  */
 async function markInviteAsUsed(token) {
-    const { error } = await supabase
-        .from('user_invites')
-        .update({ used: true })
-        .eq('token', token);
-
-    if (error) throw error;
+    await pool.query(
+        `UPDATE user_invites SET used = true WHERE token = $1`,
+        [token]
+    );
 }
 
 /**
  * Cria usuário a partir do convite
  */
 async function createUserFromInvite({ email, companyId, nomeCompleto, passwordHash }) {
-    const { error } = await supabase
-        .from('usuarios')
-        .insert({
-            email,
-            company_id: companyId,
-            nome_completo: nomeCompleto,
-            senha: passwordHash,
-            role: 'user',
-            status: 'active'
-        });
-
-    if (error) throw error;
+    await pool.query(
+        `INSERT INTO usuarios (email, company_id, nome_completo, senha, role, status)
+         VALUES ($1, $2, $3, $4, 'user', 'active')`,
+        [email, companyId, nomeCompleto, passwordHash]
+    );
 }
 
 
@@ -92,16 +76,13 @@ async function sendInviteEmail(email, token) {
 }
 
 async function validateInvite(token) {
-    const { data, error } = await supabase
-        .from('user_invites')
-        .select('*')
-        .eq('token', token)
-        .eq('used', false)
-        .gt('expires_at', new Date().toISOString())
-        .single();
-
-    if (error || !data) return null;
-    return data;
+    const { rows } = await pool.query(
+        `SELECT * FROM user_invites
+         WHERE token = $1 AND used = false AND expires_at > NOW()
+         LIMIT 1`,
+        [token]
+    );
+    return rows[0] ?? null;
 }
 
 
@@ -119,6 +100,18 @@ async function sendResetPasswordEmail(email, token) {
 }
 
 
+async function listInvitesByCompany(session) {
+    return withTenantContext(session, async (client) => {
+        const { rows } = await client.query(
+            `SELECT id, email, type, used, expires_at, created_at
+             FROM user_invites
+             WHERE type = 'invite'
+             ORDER BY created_at DESC`
+        );
+        return rows;
+    });
+}
+
 module.exports = {
     createInvite,
     getInviteByToken,
@@ -126,5 +119,6 @@ module.exports = {
     createUserFromInvite,
     sendInviteEmail,
     validateInvite,
-    sendResetPasswordEmail
+    sendResetPasswordEmail,
+    listInvitesByCompany
 };
